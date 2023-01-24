@@ -23,8 +23,37 @@ jobs:
           name: build
           path: build.tar.gz
 
-  generate-docs:
+  build-project:
     needs: build
+    environment: Main
+    runs-on: ubuntu-latest
+    container:
+      image: wonderlandengine/editor:latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: tar -xf build.tar.gz dist/
+      # just naming this step because im scared that the credentials will get printed
+      - name: Package with Wonderland Engine Editor
+        run: /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project example-project/example-project.wlp --credentials "$WLE_CREDENTIALS"
+        env:
+          WLE_CREDENTIALS: ${{ secrets.WLE_CREDENTIALS }}
+      - run: tar -czf project-build.tar.gz example-project/deploy/*
+      - uses: actions/upload-artifact@v3
+        with:
+          name: project-build
+          path: project-build.tar.gz
+
+  generate-docs:
+    needs: [build, build-project]
     environment: Main
     runs-on: ubuntu-latest
     steps:
@@ -40,10 +69,15 @@ jobs:
         with:
           name: build
       - run: tar -xf build.tar.gz dist/
+      - name: Download project build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: project-build
+      - run: tar -xf project-build.tar.gz wle-deploy/
       - run: mkdir docs/dist
       - run: mv dist/index.esm.js docs/dist/index.esm.js
       - run: mv dist/index.esm.js.map docs/dist/index.esm.js.map
-      - run: mv examples docs/examples
+      - run: mv wle-deploy docs/example-project
       - uses: actions/upload-pages-artifact@v1
         with:
           path: 'docs/'
