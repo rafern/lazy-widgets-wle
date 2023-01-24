@@ -57,8 +57,9 @@ export class WLVirtualKeyboardRoot extends WLRoot {
      * before calling update.
      */
     updateVisibility() {
-        if(!this.valid)
+        if(!this.valid) {
             return;
+        }
 
         // Update visibility of virtual keyboard
         this.enabled = this.keyboardDriver.needsInput;

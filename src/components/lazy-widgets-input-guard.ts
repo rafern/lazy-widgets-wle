@@ -41,13 +41,14 @@ WL.registerComponent('lazy-widgets-input-guard', {
         if(this.keyboardComponentName !== '') {
             if(this.keyboardObject !== null) {
                 const keyboardComponent = this.keyboardObject.getComponent(this.keyboardComponentName, 0);
-                if(keyboardComponent === null)
+                if(keyboardComponent === null) {
                     console.warn('keyboardObject has no component with name', this.keyboardComponentName);
-                else
+                } else {
                     this.keyboardComponent = keyboardComponent;
-            }
-            else
+                }
+            } else {
                 console.warn('keyboardComponentName set in lazy-widgets-keyboard-guard, but keyboardObject was not');
+            }
         }
 
         if(this.pointerComponentName !== '') {
@@ -60,18 +61,18 @@ WL.registerComponent('lazy-widgets-input-guard', {
 
                 if(this.cursorObject !== null) {
                     const cursor = this.cursorObject.getComponent('cursor', 0);
-                    if(cursor === null)
+                    if(cursor === null) {
                         console.warn('cursorObject set in lazy-widgets-keyboard-guard, but cursorObject has no cursor component');
-                    else {
+                    } else {
                         this.pointer = WLRoot.getPointerID(cursor);
                         this.pointerComponent = pointerComponent;
                     }
-                }
-                else
+                } else {
                     console.warn('pointerObject set in lazy-widgets-keyboard-guard, but cursorObject was not');
-            }
-            else
+                }
+            } else {
                 console.warn('pointerComponentName set in lazy-widgets-keyboard-guard, but pointerObject was not');
+            }
         }
 
     },
@@ -87,10 +88,12 @@ WL.registerComponent('lazy-widgets-input-guard', {
         }
     },
     onDeactivate() {
-        if(this.keyboardComponent !== null)
+        if(this.keyboardComponent !== null) {
             this.keyboardComponent.active = true;
+        }
 
-        if(this.pointerComponent !== null)
+        if(this.pointerComponent !== null) {
             this.pointerComponent.active = true;
+        }
     },
 });
