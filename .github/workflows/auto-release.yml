@@ -1,0 +1,85 @@
+name: Auto-generate docs and auto-publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    environment: Main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: tar -czf build.tar.gz dist/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build.tar.gz
+
+  generate-docs:
+    needs: build
+    environment: Main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run docs
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: tar -xf build.tar.gz dist/
+      - run: mkdir docs/dist
+      - run: mv dist/index.esm.js docs/dist/index.esm.js
+      - run: mv dist/index.esm.js.map docs/dist/index.esm.js.map
+      - run: mv examples docs/examples
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'docs/'
+
+  deploy-docs:
+    needs: generate-docs
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
+  publish-npm:
+    if: ${{ false }} # disabled for testing
+    needs: deploy-docs
+    environment: Main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          registry-url: https://registry.npmjs.org/
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: tar -xf build.tar.gz dist/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
