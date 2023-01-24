@@ -12,7 +12,7 @@ library.
 1. Install the `lazy-widgets` NPM package: `npm install --save-dev lazy-widgets`
 2. Install this NPM package: `npm install --save-dev lazy-widgets-wle`
 3. Import needed classes from `lazy-widgets` and `lazy-widgets-wle` in your code
-4. Create a new component for your UI root ([see examples section](#Examples))
+4. Create a new component for your UI root ([see example section](#Example))
 5. Set the material to use for your UI root component to a textured material. If you want a semi-transparent background, create a new pipeline with alpha blending enabled
 
 Note that there is no API in Wonderland Engine to get information about a
