@@ -3,6 +3,7 @@ import type { Widget, RootProperties } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
 
 // TODO use proper WLE types when official typescript support is released
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare const WL: any;
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
@@ -78,7 +79,6 @@ export interface WLRootProperties extends RootProperties {
  * A lazy-widgets Root which automatically manages a mesh and input. For an
  * example on how to use this in a component, see
  * example-components/test-ui-root.js
- * @alias module:WLRoot
  */
 export class WLRoot extends Root {
     /**
@@ -93,9 +93,8 @@ export class WLRoot extends Root {
      * The shared PointerDriver instance. Getter only. The PointerDriver will
      * only be created when needed. Used for pointer (mouse & XR controller)
      * input.
-     * @type {PointerDriver}
      */
-    static get pointerDriver() {
+    static get pointerDriver(): PointerDriver {
         if(canvasUIPointerDriver === null) {
             canvasUIPointerDriver = new PointerDriver();
         }
@@ -106,9 +105,8 @@ export class WLRoot extends Root {
     /**
      * The shared DOMKeyboardDriver instance. Getter only. The DOMKeyboardDriver
      * will only be created when needed. Used for keyboard input.
-     * @type {DOMKeyboardDriver}
      */
-    static get keyboardDriver() {
+    static get keyboardDriver(): DOMKeyboardDriver {
         if(canvasUIKeyboardDriver === null) {
             canvasUIKeyboardDriver = new DOMKeyboardDriver();
             canvasUIKeyboardDriver.bindDOMElem(WLRoot.bindableElement);
@@ -119,9 +117,8 @@ export class WLRoot extends Root {
 
     /**
      * A Map mapping each cursor component to a PointerDriver's pointer ID.
-     * @type {Map}
      */
-    static get pointerIDs() {
+    static get pointerIDs(): Map<object, number> {
         if(canvasUIPointerIDs === null) {
             canvasUIPointerIDs = new Map();
         }
@@ -133,10 +130,9 @@ export class WLRoot extends Root {
      * Get the pointer ID assigned to a given cursor component. If the cursor
      * has no pointer ID assigned, a new pointer ID is registered to the
      * PointerDriver.
-     * @param cursor The cursor component
-     * @type {number}
+     * @param cursor - The cursor component
      */
-    static getPointerID(cursor: object) {
+    static getPointerID(cursor: object): number {
         const map = WLRoot.pointerIDs;
         let pointer = map.get(cursor);
         if(typeof pointer === 'undefined') {
@@ -180,15 +176,14 @@ export class WLRoot extends Root {
      * style handler that changes the cursor style of the Wonderland Engine
      * canvas will be used.
      *
-     * @param wlObject The object where the mesh will be added.
-     * @param material The material to use for this root's mesh. The material will be cloned.
-     * @param child The root's child widget.
-     * @constructor
+     * @param wlObject - The object where the mesh will be added.
+     * @param material - The material to use for this root's mesh. The material will be cloned.
+     * @param child - The root's child widget.
      */
     constructor(wlObject: any /*WL.Object*/, material: any /*WL.Material*/, child: Widget, properties?: WLRootProperties) {
         properties = {
             pointerStyleHandler: style => {
-                this.boundTo.style.cursor = style 
+                this.boundTo.style.cursor = style;
             },
             preventBleeding: true,
             cloneMaterial: true,
@@ -205,7 +200,7 @@ export class WLRoot extends Root {
         this.unitsPerPixel = properties.unitsPerPixel ?? 0.01;
 
         if (!WL.scene) {
-            throw new Error();
+            throw new Error('No scene available');
         }
 
         // Create the child object where the mesh and collider will be put.

@@ -2,6 +2,7 @@ import { PointerHint } from 'lazy-widgets';
 import { WLRoot } from '../core/WLRoot';
 
 // TODO use proper WLE types when official typescript support is released
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare const WL: any;
 
 interface CanvasUIInputGuardComponent {
