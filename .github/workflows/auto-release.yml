@@ -30,6 +30,8 @@ jobs:
     container:
       image: wonderlandengine/editor:latest
     steps:
+      # XXX libatomic is missing. looks like WLE github CI is outdated
+      - run: sudo apt-get install -y libatomic1
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
