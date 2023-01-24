@@ -4,3 +4,4 @@ dist/
 example-project/cache/
 example-project/deploy/
 lazy-widgets-*.tgz
+imgui.ini
