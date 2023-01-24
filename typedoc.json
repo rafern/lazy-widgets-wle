@@ -1,0 +1,15 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": [ "./src/index.ts" ],
+    "out": "./docs/",
+    "name": "lazy-widgets-wle",
+    "intentionallyNotExported": [
+        "CursorTargetComponent", "CursorComponent"
+    ],
+    "externalDocumentation": {
+        "lazy-widgets": {
+            "dtsPath": "~/dist/index.d.ts",
+            "externalBaseURL": "https://rafern.github.io/lazy-widgets"
+        }
+    }
+}

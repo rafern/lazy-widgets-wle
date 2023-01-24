@@ -1,0 +1,14 @@
+{
+  "name": "example-project",
+  "version": "1.0.0",
+  "description": "lazy-widgets-wle example project",
+  "main": "js/bundle.js",
+  "scripts": {
+    "build": "esbuild js/bundle.js --bundle --outfile=deploy/lazy-widgets-wle-example-project-bundle.js"
+  },
+  "author": "rafern",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "@wonderlandengine/components": "^0.9.1"
+  }
+}
