@@ -103,7 +103,6 @@ jobs:
         uses: actions/deploy-pages@v1
 
   publish-npm:
-    if: ${{ false }} # disabled for testing
     needs: deploy-docs
     environment: Main
     runs-on: ubuntu-latest
