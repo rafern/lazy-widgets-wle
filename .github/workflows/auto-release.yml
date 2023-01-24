@@ -38,6 +38,10 @@ jobs:
           node-version: 18
           cache: 'npm'
       - run: npm ci
+      - run: |
+          cd example-project
+          npm ci
+          cd ..
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
@@ -75,11 +79,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: project-build
-      - run: tar -xf project-build.tar.gz wle-deploy/
+      - run: tar -xf project-build.tar.gz example-project/
       - run: mkdir docs/dist
       - run: mv dist/index.esm.js docs/dist/index.esm.js
       - run: mv dist/index.esm.js.map docs/dist/index.esm.js.map
-      - run: mv wle-deploy docs/example-project
+      - run: mv example-project/deploy docs/example-project
       - uses: actions/upload-pages-artifact@v1
         with:
           path: 'docs/'
