@@ -4,6 +4,7 @@ import type { WLRootProperties } from './WLRoot';
 import { WLRoot } from './WLRoot';
 
 // TODO use proper WLE types when official typescript support is released
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Optional WLVirtualKeyboardRoot constructor properties.
@@ -20,7 +21,6 @@ export interface WLVirtualKeyboardRootProperties extends VirtualKeyboardRootProp
  * lazy-widgets. Can also be automatically hidden when there is no keyboard
  * focus by callid updateVisibility before calling update. This doesn't need to
  * be directly used, the virtual-keyboard-ui-root component can be used instead.
- * @alias module:WLVirtualKeyboardRoot
  */
 export class WLVirtualKeyboardRoot extends WLRoot {
     /** The {@link KeyboardDriver} used by this root's virtual keyboard. */
@@ -28,9 +28,8 @@ export class WLVirtualKeyboardRoot extends WLRoot {
 
     /**
      * Create a new WLVirtualKeyboardRoot.
-     * @param wlObject The object where the mesh will be added.
-     * @param material The material to use for this root's mesh. The material will be cloned.
-     * @constructor
+     * @param wlObject - The object where the mesh will be added.
+     * @param material - The material to use for this root's mesh. The material will be cloned.
      */
     constructor(wlObject: any /*WL.Object*/, material: any /*WL.Material*/, properties?: WLVirtualKeyboardRootProperties) {
         const keyboardDriver = properties?.keyboardDriver ?? WLRoot.keyboardDriver;

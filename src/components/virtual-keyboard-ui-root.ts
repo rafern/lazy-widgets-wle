@@ -1,6 +1,7 @@
 import { WLVirtualKeyboardRoot } from '../core/WLVirtualKeyboardRoot';
 
 // TODO use proper WLE types when official typescript support is released
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare const WL: any;
 
 interface VirtualKeyboardUIRootComponent {
