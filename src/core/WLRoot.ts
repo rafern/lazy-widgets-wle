@@ -96,8 +96,9 @@ export class WLRoot extends Root {
      * @type {PointerDriver}
      */
     static get pointerDriver() {
-        if(canvasUIPointerDriver === null)
+        if(canvasUIPointerDriver === null) {
             canvasUIPointerDriver = new PointerDriver();
+        }
 
         return canvasUIPointerDriver;
     }
@@ -121,8 +122,9 @@ export class WLRoot extends Root {
      * @type {Map}
      */
     static get pointerIDs() {
-        if(canvasUIPointerIDs === null)
+        if(canvasUIPointerIDs === null) {
             canvasUIPointerIDs = new Map();
+        }
 
         return canvasUIPointerIDs;
     }
@@ -185,7 +187,9 @@ export class WLRoot extends Root {
      */
     constructor(wlObject: any /*WL.Object*/, material: any /*WL.Material*/, child: Widget, properties?: WLRootProperties) {
         properties = {
-            pointerStyleHandler: style => { this.boundTo.style.cursor = style },
+            pointerStyleHandler: style => {
+                this.boundTo.style.cursor = style 
+            },
             preventBleeding: true,
             cloneMaterial: true,
             ...properties
@@ -210,10 +214,12 @@ export class WLRoot extends Root {
         this.meshObject.active = false;
 
         // Setup drivers
-        if(collisionGroup !== null && registerPointerDriver)
+        if(collisionGroup !== null && registerPointerDriver) {
             this.registerDriver(WLRoot.pointerDriver);
-        if(registerKeyboardDriver)
+        }
+        if(registerKeyboardDriver) {
             this.registerDriver(WLRoot.keyboardDriver);
+        }
 
         // Setup mesh for rendering in world
         this.meshComponent = this.meshObject.addComponent('mesh', {}) /*as WL.MeshComponent*/;
@@ -281,21 +287,27 @@ export class WLRoot extends Root {
                 let shift = false, ctrl = false, alt = false;
 
                 this.keydownEventListener = (event: KeyboardEvent) => {
-                    if(event.key === 'Shift')
+                    if(event.key === 'Shift') {
                         shift = true;
-                    if(event.key === 'Control')
+                    }
+                    if(event.key === 'Control') {
                         ctrl = true;
-                    if(event.key === 'Alt')
+                    }
+                    if(event.key === 'Alt') {
                         alt = true;
+                    }
                 };
 
                 this.keyupEventListener = (event: KeyboardEvent) => {
-                    if(event.key === 'Shift')
+                    if(event.key === 'Shift') {
                         shift = false;
-                    if(event.key === 'Control')
+                    }
+                    if(event.key === 'Control') {
                         ctrl = false;
-                    if(event.key === 'Alt')
+                    }
+                    if(event.key === 'Alt') {
                         alt = false;
+                    }
                 };
 
                 this.boundTo.addEventListener('keydown', this.keydownEventListener);
@@ -347,8 +359,9 @@ export class WLRoot extends Root {
      * individual Root update methods.
      */
     update() {
-        if(!this.valid || !this._enabled)
+        if(!this.valid || !this._enabled) {
             return;
+        }
 
         // We know that this is `valid` and hence not null, typecast
         const meshObject = (this.meshObject /*as WL.Object*/);
@@ -394,8 +407,9 @@ export class WLRoot extends Root {
             meshObject.active = true;
         }
 
-        if(!wasDirty)
+        if(!wasDirty) {
             return;
+        }
 
         // Update texture if needed (if root was dirty)
         if(this.oldTexSize[0] !== canvasWidth || this.oldTexSize[1] !== canvasHeight) {
@@ -404,31 +418,33 @@ export class WLRoot extends Root {
             const mat = this.materialClone;
             const oldTexture = this.texture;
             this.texture = new WL.Texture(this.canvas);
-            if(mat.shader === 'Flat Opaque Textured' || mat.shader === 'Flat Transparent Textured')
+            if(mat.shader === 'Flat Opaque Textured' || mat.shader === 'Flat Transparent Textured') {
                 (mat as FlatMaterial).flatTexture = this.texture;
-            else if(mat.shader == 'Phong Opaque Textured')
+            } else if(mat.shader == 'Phong Opaque Textured') {
                 (mat as DiffuseMaterial).diffuseTexture = this.texture;
-            else
+            } else {
                 console.error('Shader', mat.shader, 'not supported by WLRoot');
+            }
 
             // Destroy old texture so that there isn't an accumulation of
             // texture atlas usage over time
-            if(oldTexture)
+            if(oldTexture) {
                 oldTexture.destroy();
-        }
-        else if(this.texture) {
+            }
+        } else if(this.texture) {
             //console.log('Root was dirty, updating texture');
             this.texture.update();
-        }
-        else
+        } else {
             console.warn('There is no texture to update! Is the canvas dimensionless?');
+        }
     }
 
     override set enabled(enabled: boolean) {
         super.enabled = enabled;
 
-        if(this.paintedOnce)
+        if(this.paintedOnce) {
             (this.meshObject /*as WL.Object*/).active = this.enabled;
+        }
     }
 
     override get enabled(): boolean {
@@ -479,8 +495,9 @@ export class WLRoot extends Root {
 
         (this.meshComponent /*as WL.MeshComponent*/).mesh = newMesh;
 
-        if(this.mesh)
+        if(this.mesh) {
             this.mesh.destroy();
+        }
 
         this.mesh = newMesh;
     }
@@ -542,8 +559,9 @@ export class WLRoot extends Root {
 
         // FIXME material is not destroyed. find a way to do it
 
-        if(this.mesh)
+        if(this.mesh) {
             this.mesh.destroy();
+        }
 
         if(this.meshObject) {
             this.meshObject.destroy();
