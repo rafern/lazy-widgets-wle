@@ -104,7 +104,10 @@
                     "type": "mouse-look"
                 },
                 {
-                    "type": "cursor"
+                    "type": "cursor",
+                    "cursor": {
+                        "styleCursor": false
+                    }
                 }
             ]
         },
