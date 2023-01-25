@@ -5,3 +5,5 @@ example-project/cache/
 example-project/deploy/
 lazy-widgets-*.tgz
 imgui.ini
+*.sublime-project
+*.sublime-workspace
