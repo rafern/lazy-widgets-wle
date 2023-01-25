@@ -170,7 +170,7 @@ export class WLRoot extends Root {
      * passed to it.
      *
      * If texture bleeding prevention is not specified, then it will be enabled
-     * by default.
+     * by default. Same applies for texture atlas bleeding prevention.
      *
      * If a pointer style handler is not specified, then a default pointer
      * style handler that changes the cursor style of the Wonderland Engine
@@ -186,7 +186,12 @@ export class WLRoot extends Root {
                 this.boundTo.style.cursor = style;
             },
             preventBleeding: true,
+            preventAtlasBleeding: true,
             cloneMaterial: true,
+            // Wonderland engine has much stricter texture limits because of the
+            // texture atlas system. Limit canvas to 2048x2048 by default
+            maxCanvasWidth: 2048,
+            maxCanvasHeight: 2048,
             ...properties
         };
 
@@ -243,7 +248,7 @@ export class WLRoot extends Root {
         }
 
         this.meshComponent.material = this.materialClone;
-        this._setupMesh(1, 0);
+        this._setupMesh(0, 1, 1, 0);
 
         // Setup mouse pointer input
         if(collisionGroup !== null) {
@@ -340,11 +345,6 @@ export class WLRoot extends Root {
         }
 
         this.valid = true;
-
-        // Wonderland engine has much stricter texture limits because of the
-        // texture atlas system. Limit canvas to 2048x2048 by default
-        this.maxCanvasWidth = 2048;
-        this.maxCanvasHeight = 2048;
     }
 
 
@@ -388,7 +388,18 @@ export class WLRoot extends Root {
                 ];
             }
 
-            this._setupMesh(scaleX * width / canvasWidth, 1 - (scaleY * height / canvasHeight));
+            let uBorder = 0, vBorder = 0;
+
+            // XXX take offset from atlas bleeding prevention into account
+            if (this.preventAtlasBleeding) {
+                uBorder = 1 / this.canvas.width;
+                vBorder = 1 / this.canvas.height;
+            }
+
+            const uSpan = scaleX * width / canvasWidth;
+            const vSpan = scaleY * height / canvasHeight;
+
+            this._setupMesh(uBorder, uBorder + uSpan, 1 - vBorder, 1 - vBorder - vSpan);
         }
 
         // Update (post-layout)
@@ -446,7 +457,7 @@ export class WLRoot extends Root {
         return super.enabled;
     }
 
-    private _setupMesh(u: number, v: number) {
+    private _setupMesh(uLeft: number, uRight: number, vTop: number, vBottom: number) {
         const newMesh = new WL.Mesh({
             indexData: new Uint8Array([
                 0, 3, 1, // top-right triangle
@@ -470,16 +481,16 @@ export class WLRoot extends Root {
 
         // top-left
         positions.set(0, [-1, 1, 0]);
-        texCoords.set(0, [0, 1]);
+        texCoords.set(0, [uLeft, vTop]);
         // top-right
         positions.set(1, [1, 1, 0]);
-        texCoords.set(1, [u, 1]);
+        texCoords.set(1, [uRight, vTop]);
         // bottom-left
         positions.set(2, [-1, -1, 0]);
-        texCoords.set(2, [0, v]);
+        texCoords.set(2, [uLeft, vBottom]);
         // bottom-right
         positions.set(3, [1, -1, 0]);
-        texCoords.set(3, [u, v]);
+        texCoords.set(3, [uRight, vBottom]);
 
         if (normals) {
             normals.set(0, [0, 0, 1]); // tl
