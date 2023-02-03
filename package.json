@@ -12,7 +12,8 @@
     "dev": "esbuild --watch --bundle --sourcemap --keep-names --target=es6 --format=esm --external:lazy-widgets --external:gl-matrix --external:@wonderlandengine/api --outfile=dist/index.esm.js src/index.ts",
     "docs": "typedoc --options typedoc.json",
     "test": "echo Dummy test - TODO implement tests",
-    "clean": "rimraf dist/*"
+    "clean": "rimraf dist/*",
+    "pack": "npm run clean && npm run lint && npm run test && npm run docs && npm run build && npm pack"
   },
   "files": [
     "dist"
