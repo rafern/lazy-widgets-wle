@@ -1,6 +1,7 @@
 import { Root, PointerDriver, DOMKeyboardDriver } from 'lazy-widgets';
 import type { Widget, RootProperties } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
+import { addPasteEventListener, removePasteEventListener } from './paste-event-listener';
 
 // TODO use proper WLE types when official typescript support is released
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -198,6 +199,7 @@ export class WLRoot extends Root {
         super(child, properties);
 
         this.boundTo = WLRoot.bindableElement;
+        addPasteEventListener(this.boundTo, this);
 
         const collisionGroup = properties.collisionGroup ?? 1;
         const registerPointerDriver = properties.registerPointerDriver ?? true;
@@ -510,6 +512,8 @@ export class WLRoot extends Root {
 
     override destroy(): void {
         // remove listeners
+        removePasteEventListener(this.boundTo, this);
+
         if(this.keydownEventListener !== null) {
             this.boundTo.removeEventListener('keydown', this.keydownEventListener);
             this.keydownEventListener = null;
