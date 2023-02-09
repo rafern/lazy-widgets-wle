@@ -80,6 +80,16 @@ export interface WLRootProperties extends RootProperties {
  * A lazy-widgets Root which automatically manages a mesh and input. For an
  * example on how to use this in a component, see
  * example-components/test-ui-root.js
+ *
+ * Note that the properties object can also contain optional parameters for the
+ * lazy-widgets Root constructor, and will be passed to it.
+ *
+ * If texture bleeding prevention is not specified, then it will be enabled by
+ * default. Same applies for texture atlas bleeding prevention.
+ *
+ * If a pointer style handler is not specified, then a default pointer style
+ * handler that changes the cursor style of the Wonderland Engine canvas will be
+ * be used.
  */
 export class WLRoot extends Root {
     /**
@@ -166,17 +176,6 @@ export class WLRoot extends Root {
     private boundTo: HTMLElement;
 
     /**
-     * Create a new WLRoot. Note that the properties object can also contain
-     * optional parameters for the lazy-widgets Root constructor, and will be
-     * passed to it.
-     *
-     * If texture bleeding prevention is not specified, then it will be enabled
-     * by default. Same applies for texture atlas bleeding prevention.
-     *
-     * If a pointer style handler is not specified, then a default pointer
-     * style handler that changes the cursor style of the Wonderland Engine
-     * canvas will be used.
-     *
      * @param wlObject - The object where the mesh will be added.
      * @param material - The material to use for this root's mesh. The material will be cloned.
      * @param child - The root's child widget.

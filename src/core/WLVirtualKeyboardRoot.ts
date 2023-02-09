@@ -27,7 +27,6 @@ export class WLVirtualKeyboardRoot extends WLRoot {
     private readonly keyboardDriver: KeyboardDriver;
 
     /**
-     * Create a new WLVirtualKeyboardRoot.
      * @param wlObject - The object where the mesh will be added.
      * @param material - The material to use for this root's mesh. The material will be cloned.
      */
