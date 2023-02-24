@@ -299,6 +299,136 @@
                 0.5,
                 0.5
             ]
+        },
+        "62": {
+            "name": "LeftInput",
+            "components": [
+                {
+                    "type": "input",
+                    "input": {
+                        "type": "ray left"
+                    }
+                },
+                {
+                    "type": "cursor",
+                    "cursor": {
+                        "handedness": "left",
+                        "styleCursor": false,
+                        "cursorObject": null,
+                        "cursorRayObject": "64"
+                    }
+                }
+            ],
+            "parent": "14",
+            "translation": [
+                0.0,
+                -10.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.7071068,
+                0.0,
+                0.7071067
+            ],
+            "scale": [
+                1.0000001,
+                1.0,
+                1.0000001
+            ]
+        },
+        "63": {
+            "name": "RightInput",
+            "components": [
+                {
+                    "type": "input",
+                    "input": {
+                        "type": "ray right"
+                    }
+                },
+                {
+                    "type": "cursor",
+                    "cursor": {
+                        "handedness": "right",
+                        "styleCursor": false,
+                        "cursorObject": null,
+                        "cursorRayObject": "67"
+                    }
+                }
+            ],
+            "parent": "14",
+            "translation": [
+                0.0,
+                -10.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.7071068,
+                0.0,
+                0.7071067
+            ],
+            "scale": [
+                1.0000001,
+                1.0,
+                1.0000001
+            ]
+        },
+        "64": {
+            "name": "CursorRayLeft",
+            "parent": "62"
+        },
+        "65": {
+            "name": "CursorRayLeftMesh",
+            "parent": "64",
+            "components": [
+                {
+                    "type": "mesh",
+                    "mesh": {
+                        "mesh": "10",
+                        "material": "66"
+                    }
+                }
+            ],
+            "rotation": [
+                -0.7071068,
+                0.0,
+                0.0,
+                0.7071068
+            ],
+            "scale": [
+                0.0049998,
+                0.5,
+                0.0049998
+            ]
+        },
+        "67": {
+            "name": "CursorRayRight",
+            "parent": "63"
+        },
+        "68": {
+            "name": "CursorRayRightMesh",
+            "parent": "67",
+            "components": [
+                {
+                    "type": "mesh",
+                    "mesh": {
+                        "mesh": "10",
+                        "material": "66"
+                    }
+                }
+            ],
+            "rotation": [
+                -0.7071068,
+                0.0,
+                0.0,
+                0.7071068
+            ],
+            "scale": [
+                0.0049998,
+                0.5,
+                0.0049998
+            ]
         }
     },
     "meshes": {
@@ -435,6 +565,18 @@
         "59": {
             "name": "lazy-widgets-material",
             "pipeline": "61"
+        },
+        "66": {
+            "name": "Cursor",
+            "pipeline": "34",
+            "Flat": {
+                "color": [
+                    0.0,
+                    0.4980392,
+                    0.7686274,
+                    1.0
+                ]
+            }
         }
     },
     "shaders": {
