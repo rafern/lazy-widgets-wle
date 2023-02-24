@@ -1,4 +1,4 @@
-import { Root, PointerDriver, DOMKeyboardDriver } from 'lazy-widgets';
+import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup } from 'lazy-widgets';
 import type { Widget, RootProperties } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener';
@@ -9,12 +9,13 @@ declare const WL: any;
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
-let canvasUIPointerDriver: PointerDriver | null = null;
-let canvasUIKeyboardDriver: DOMKeyboardDriver | null = null;
+let pointerDriver: PointerDriver | null = null;
+let keyboardDriver: DOMKeyboardDriver | null = null;
+let keyboardDriverGroup: DOMKeyboardDriverGroup | null = null;
 
 // Mapping for 'cursor' components to lazy-widgets pointer IDs. Use
 // WLRoot.pointerIDs or WLRoot.getPointerID(cursor)
-let canvasUIPointerIDs: Map<object, number> | null = null;
+let pointerIDs: Map<object, number> | null = null;
 
 /** Impostor interface for the `cursor` WLE component. */
 interface CursorComponent {
@@ -106,11 +107,27 @@ export class WLRoot extends Root {
      * input.
      */
     static get pointerDriver(): PointerDriver {
-        if(canvasUIPointerDriver === null) {
-            canvasUIPointerDriver = new PointerDriver();
+        if(pointerDriver === null) {
+            pointerDriver = new PointerDriver();
         }
 
-        return canvasUIPointerDriver;
+        return pointerDriver;
+    }
+
+    /**
+     * The shared DOMKeyboardDriverGroup instance. Getter only. The
+     * DOMKeyboardDriverGroup will only be created when needed. Used for
+     * keyboard input.
+     */
+    static get keyboardDriverGroup(): DOMKeyboardDriverGroup {
+        if (keyboardDriverGroup === null) {
+            keyboardDriverGroup = WLRoot.keyboardDriver.createGroup({
+                domElem: WLRoot.bindableElement,
+                wrapsAround: true
+            });
+        }
+
+        return keyboardDriverGroup;
     }
 
     /**
@@ -118,23 +135,22 @@ export class WLRoot extends Root {
      * will only be created when needed. Used for keyboard input.
      */
     static get keyboardDriver(): DOMKeyboardDriver {
-        if(canvasUIKeyboardDriver === null) {
-            canvasUIKeyboardDriver = new DOMKeyboardDriver();
-            canvasUIKeyboardDriver.bindDOMElem(WLRoot.bindableElement);
+        if(keyboardDriver === null) {
+            keyboardDriver = new DOMKeyboardDriver();
         }
 
-        return canvasUIKeyboardDriver;
+        return keyboardDriver;
     }
 
     /**
      * A Map mapping each cursor component to a PointerDriver's pointer ID.
      */
     static get pointerIDs(): Map<object, number> {
-        if(canvasUIPointerIDs === null) {
-            canvasUIPointerIDs = new Map();
+        if(pointerIDs === null) {
+            pointerIDs = new Map();
         }
 
-        return canvasUIPointerIDs;
+        return pointerIDs;
     }
 
     /**
@@ -218,8 +234,11 @@ export class WLRoot extends Root {
         if(collisionGroup !== null && registerPointerDriver) {
             this.registerDriver(WLRoot.pointerDriver);
         }
+
         if(registerKeyboardDriver) {
-            this.registerDriver(WLRoot.keyboardDriver);
+            const kb = WLRoot.keyboardDriver;
+            kb.bindRoot(this, WLRoot.keyboardDriverGroup);
+            this.registerDriver(kb);
         }
 
         // Setup mesh for rendering in world

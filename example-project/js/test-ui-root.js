@@ -12,20 +12,20 @@ WL.registerComponent('test-ui-root', {
             new RoundedCorners(
                 new Background(
                     new Margin(
-                        new Column().add([
+                        new Column([
                             label,
                             new TextInput(new ValidatedVariable('', null, value => {
                                 label.text = `Text input: ${value}`;
                             }, false)),
-                            new Row({
+                            new Row([
+                                new TextButton('Button 1'),
+                                new TextButton('Button 2'),
+                            ], {
                                 multiContainerAlignment: {
                                     main: FlexAlignment.Center,
                                     cross: Alignment.Stretch
                                 },
-                            }).add([
-                                new TextButton('Button 1', () => label.text = 'Button 1 clicked!'),
-                                new TextButton('Button 2', () => label.text = 'Button 2 clicked!'),
-                            ])
+                            }).on('click', (ev) => label.text = `${ev.origin.child.text} clicked!`)
                         ])
                     ),
                 ),
