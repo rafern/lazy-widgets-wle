@@ -1,11 +1,10 @@
 import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup } from 'lazy-widgets';
-import type { Widget, RootProperties } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener';
+import * as WL from '@wonderlandengine/api';
 
-// TODO use proper WLE types when official typescript support is released
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare const WL: any;
+import type { Widget, RootProperties } from 'lazy-widgets';
+import type { Cursor, CursorTarget } from '@wonderlandengine/components';
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
@@ -15,35 +14,16 @@ let keyboardDriverGroup: DOMKeyboardDriverGroup | null = null;
 
 // Mapping for 'cursor' components to lazy-widgets pointer IDs. Use
 // WLRoot.pointerIDs or WLRoot.getPointerID(cursor)
-let pointerIDs: Map<object, number> | null = null;
-
-/** Impostor interface for the `cursor` WLE component. */
-interface CursorComponent {
-    rayHit: any /*WL.RayHit*/,
-}
-
-/** Impostor interface for the `cursor-target` WLE component. */
-interface CursorTargetComponent {
-    addUnHoverFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    addMoveFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    addDownFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    addUpFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    removeUnHoverFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    removeMoveFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    removeDownFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    removeUpFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
-    destroy(): void,
-    active: boolean,
-}
+let pointerIDs: Map<Cursor, number> | null = null;
 
 /** Impostor interface for WL.Materials with a flatTexture property. */
-interface FlatMaterial /*extends WL.Material*/ {
-    flatTexture: any /*WL.Texture*/,
+interface FlatMaterial extends WL.Material {
+    flatTexture: WL.Texture,
 }
 
 /** Impostor interface for WL.Materials with a diffuseTexture property. */
-interface DiffuseMaterial /*extends WL.Material*/ {
-    diffuseTexture: any /*WL.Texture*/,
+interface DiffuseMaterial extends WL.Material {
+    diffuseTexture: WL.Texture,
 }
 
 /**
@@ -145,7 +125,7 @@ export class WLRoot extends Root {
     /**
      * A Map mapping each cursor component to a PointerDriver's pointer ID.
      */
-    static get pointerIDs(): Map<object, number> {
+    static get pointerIDs(): Map<Cursor, number> {
         if(pointerIDs === null) {
             pointerIDs = new Map();
         }
@@ -159,7 +139,7 @@ export class WLRoot extends Root {
      * PointerDriver.
      * @param cursor - The cursor component
      */
-    static getPointerID(cursor: object): number {
+    static getPointerID(cursor: Cursor): number {
         const map = WLRoot.pointerIDs;
         let pointer = map.get(cursor);
         if(typeof pointer === 'undefined') {
@@ -172,23 +152,23 @@ export class WLRoot extends Root {
     }
 
     unitsPerPixel: number;
-    texture: any /*WL.Texture*/ | null = null;
-    meshObject: any /*WL.Object*/ | null;
-    mesh: any /*WL.Mesh*/ | null = null;
-    meshComponent: any /*WL.MeshComponent*/ | null;
-    materialClone: any /*WL.Material*/;
+    texture: WL.Texture | null = null;
+    meshObject: WL.Object | null;
+    mesh: WL.Mesh | null = null;
+    meshComponent: WL.MeshComponent | null;
+    materialClone: WL.Material;
     oldTexSize: [number, number] = [0, 0];
-    collision: any /*WL.CollisionComponent*/ | null = null;
-    cursorTarget: CursorTargetComponent | null = null;
+    collision: WL.CollisionComponent | null = null;
+    cursorTarget: CursorTarget | null = null;
 
     protected valid = false;
     protected paintedOnce = false;
     private keydownEventListener: ((event: KeyboardEvent) => void) | null = null;
     private keyupEventListener: ((event: KeyboardEvent) => void) | null = null;
-    private unHoverFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
-    private moveFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
-    private downFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
-    private upFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
+    private unHoverFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
+    private moveFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
+    private downFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
+    private upFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
     private boundTo: HTMLElement;
 
     /**
@@ -196,7 +176,7 @@ export class WLRoot extends Root {
      * @param material - The material to use for this root's mesh. The material will be cloned.
      * @param child - The root's child widget.
      */
-    constructor(wlObject: any /*WL.Object*/, material: any /*WL.Material*/, child: Widget, properties?: WLRootProperties) {
+    constructor(wlObject: WL.Object, material: WL.Material, child: Widget, properties?: WLRootProperties) {
         properties = {
             pointerStyleHandler: style => {
                 this.boundTo.style.cursor = style;
@@ -227,7 +207,7 @@ export class WLRoot extends Root {
 
         // Create the child object where the mesh and collider will be put.
         // Starts inactive since the mesh won't be ready yet
-        this.meshObject = (WL.scene /*as WL.Scene*/).addObject(wlObject);
+        this.meshObject = WL.scene.addObject(wlObject);
         this.meshObject.active = false;
 
         // Setup drivers
@@ -242,7 +222,7 @@ export class WLRoot extends Root {
         }
 
         // Setup mesh for rendering in world
-        this.meshComponent = this.meshObject.addComponent('mesh', {}) /*as WL.MeshComponent*/;
+        this.meshComponent = this.meshObject.addComponent('mesh', {});
         this.meshComponent.active = false;
 
         // keep clone as a variable instead of accessing it later via
@@ -276,24 +256,21 @@ export class WLRoot extends Root {
                 collider: WL.Collider.Box,
                 extents: [1, 1, 0.01],
                 group: 1 << collisionGroup,
-            }) /*as WL.CollisionComponent*/;
+            });
             this.collision.active = false;
 
-            // FIXME typescript shenanigans - remove typecasts when fixed official d.ts is available
-            this.cursorTarget = this.meshObject.addComponent('cursor-target', {}) as unknown as CursorTargetComponent;
+            this.cursorTarget = this.meshObject.addComponent(CursorTarget, {});
             this.cursorTarget.active = false;
 
             const cursorPos = new Float32Array(3);
             const pos = new Float32Array(3);
             const rot = new Float32Array(4);
-            const meshObject = (this.meshObject /*as WL.Object*/);
-            const getCursorPos = (cursor: CursorComponent): [number, number] => {
+            const meshObject = (this.meshObject as WL.Object);
+            const getCursorPos = (cursor: Cursor): [number, number] => {
                 cursorPos.set(cursor.rayHit.locations[0]);
-                // FIXME typescript shenanigans - remove typecasts when fixed official d.ts is available
-                meshObject.getTranslationWorld(pos as unknown as number[]);
+                meshObject.getTranslationWorld(pos);
                 vec3.sub(cursorPos, cursorPos, pos);
-                // FIXME typescript shenanigans - remove typecasts when fixed official d.ts is available
-                quat.invert(rot, meshObject.rotationWorld as unknown as Float32Array);
+                quat.invert(rot, meshObject.rotationWorld);
                 vec3.transformQuat(cursorPos, cursorPos, rot);
                 vec3.div(cursorPos, cursorPos, meshObject.scalingWorld);
 
@@ -333,25 +310,25 @@ export class WLRoot extends Root {
                 this.boundTo.addEventListener('keydown', this.keydownEventListener);
                 this.boundTo.addEventListener('keyup', this.keyupEventListener);
 
-                this.unHoverFunction = (_: any /*WL.Object*/, cursor: CursorComponent) => {
+                this.unHoverFunction = (_, cursor: Cursor) => {
                     WLRoot.pointerDriver.leavePointer(
                         this, WLRoot.getPointerID(cursor)
                     );
                 };
 
-                this.moveFunction = (_: any /*WL.Object*/, cursor: CursorComponent) => {
+                this.moveFunction = (_, cursor: Cursor) => {
                     WLRoot.pointerDriver.movePointer(
                         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), null, shift, ctrl, alt
                     );
                 };
 
-                this.downFunction = (_: any /*WL.Object*/, cursor: CursorComponent) => {
+                this.downFunction = (_, cursor: Cursor) => {
                     WLRoot.pointerDriver.movePointer(
                         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 1, shift, ctrl, alt
                     );
                 };
 
-                this.upFunction = (_: any /*WL.Object*/, cursor: CursorComponent) => {
+                this.upFunction = (_, cursor: Cursor) => {
                     WLRoot.pointerDriver.movePointer(
                         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 0, shift, ctrl, alt
                     );
@@ -379,7 +356,7 @@ export class WLRoot extends Root {
         }
 
         // We know that this is `valid` and hence not null, typecast
-        const meshObject = (this.meshObject /*as WL.Object*/);
+        const meshObject = (this.meshObject as WL.Object);
 
         // Update (pre-layout)
         this.preLayoutUpdate();
@@ -469,7 +446,7 @@ export class WLRoot extends Root {
         super.enabled = enabled;
 
         if(this.paintedOnce) {
-            (this.meshObject /*as WL.Object*/).active = this.enabled;
+            (this.meshObject as WL.Object).active = this.enabled;
         }
     }
 
@@ -519,7 +496,7 @@ export class WLRoot extends Root {
             normals.set(3, [0, 0, 1]); // br
         }
 
-        (this.meshComponent /*as WL.MeshComponent*/).mesh = newMesh;
+        (this.meshComponent as WL.MeshComponent).mesh = newMesh;
 
         if(this.mesh) {
             this.mesh.destroy();

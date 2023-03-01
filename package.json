@@ -1,7 +1,8 @@
 {
   "name": "lazy-widgets-wle",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Typescript retained mode GUI for the HTML canvas API - Wonderland Engine integration",
+  "wonderlandengine": {},
   "main": "./dist/index.esm.js",
   "exports": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
@@ -33,6 +34,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "@typescript-eslint/parser": "^5.48.2",
+    "@wonderlandengine/api": "^0.9.6",
+    "@wonderlandengine/components": "github:WonderlandEngine/components#migrate-js",
     "esbuild": "^0.17.4",
     "eslint": "^8.32.0",
     "eslint-plugin-tsdoc": "^0.2.17",
@@ -44,6 +47,7 @@
     "typescript": "^4.9.4"
   },
   "peerDependencies": {
+    "@wonderlandengine/api": ">= 0.9.6",
     "gl-matrix": "3.x",
     "lazy-widgets": ">= 0.3.0 < 1"
   },

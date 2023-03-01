@@ -1,10 +1,9 @@
 import { VirtualKeyboard, defaultVirtualKeyboardTemplate, Margin, Background } from 'lazy-widgets';
+import { WLRoot } from './WLRoot';
+import * as WL from '@wonderlandengine/api';
+
 import type { VirtualKeyboardRootProperties, KeyboardDriver } from 'lazy-widgets';
 import type { WLRootProperties } from './WLRoot';
-import { WLRoot } from './WLRoot';
-
-// TODO use proper WLE types when official typescript support is released
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Optional WLVirtualKeyboardRoot constructor properties.
@@ -30,7 +29,7 @@ export class WLVirtualKeyboardRoot extends WLRoot {
      * @param wlObject - The object where the mesh will be added.
      * @param material - The material to use for this root's mesh. The material will be cloned.
      */
-    constructor(wlObject: any /*WL.Object*/, material: any /*WL.Material*/, properties?: WLVirtualKeyboardRootProperties) {
+    constructor(wlObject: WL.Object, material: WL.Material, properties?: WLVirtualKeyboardRootProperties) {
         const keyboardDriver = properties?.keyboardDriver ?? WLRoot.keyboardDriver;
 
         super(
