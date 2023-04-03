@@ -1,29 +1,34 @@
 import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener';
-import * as WL from '@wonderlandengine/api';
+import { Texture, Collider, Mesh, MeshAttribute, MeshIndexType } from '@wonderlandengine/api';
+import { CursorTarget } from '@wonderlandengine/components';
 
 import type { Widget, RootProperties } from 'lazy-widgets';
-import type { Cursor, CursorTarget } from '@wonderlandengine/components';
+// import type { Cursor } from '@wonderlandengine/components';
+import type { Material, MeshComponent, CollisionComponent, Object as $Object, WonderlandEngine } from '@wonderlandengine/api';
+
+// FIXME
+type Cursor = { rayHit: { locations: Array<[x: number, y: number]> } };
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
 let pointerDriver: PointerDriver | null = null;
 let keyboardDriver: DOMKeyboardDriver | null = null;
-let keyboardDriverGroup: DOMKeyboardDriverGroup | null = null;
+const keyboardDriverGroups = new WeakMap<WonderlandEngine, DOMKeyboardDriverGroup>();
 
 // Mapping for 'cursor' components to lazy-widgets pointer IDs. Use
 // WLRoot.pointerIDs or WLRoot.getPointerID(cursor)
 let pointerIDs: Map<Cursor, number> | null = null;
 
-/** Impostor interface for WL.Materials with a flatTexture property. */
-interface FlatMaterial extends WL.Material {
-    flatTexture: WL.Texture,
+/** Impostor interface for Materials with a flatTexture property. */
+interface FlatMaterial extends Material {
+    flatTexture: Texture,
 }
 
-/** Impostor interface for WL.Materials with a diffuseTexture property. */
-interface DiffuseMaterial extends WL.Material {
-    diffuseTexture: WL.Texture,
+/** Impostor interface for Materials with a diffuseTexture property. */
+interface DiffuseMaterial extends Material {
+    diffuseTexture: Texture,
 }
 
 /**
@@ -75,10 +80,10 @@ export interface WLRootProperties extends RootProperties {
 export class WLRoot extends Root {
     /**
      * Get an HTML element that we can bind a KeyboardDriver to, or change the
-     * pointer style in. Returns WL.canvas, with a fallback to the HTML body.
+     * pointer style in. Returns canvas, with a fallback to the HTML body.
      */
-    static get bindableElement(): HTMLElement {
-        return WL.canvas ?? document.body;
+    static getBindableElement(engine: WonderlandEngine): HTMLElement {
+        return engine.canvas ?? document.body;
     }
 
     /**
@@ -99,12 +104,15 @@ export class WLRoot extends Root {
      * DOMKeyboardDriverGroup will only be created when needed. Used for
      * keyboard input.
      */
-    static get keyboardDriverGroup(): DOMKeyboardDriverGroup {
-        if (keyboardDriverGroup === null) {
+    static getKeyboardDriverGroup(engine: WonderlandEngine): DOMKeyboardDriverGroup {
+        let keyboardDriverGroup = keyboardDriverGroups.get(engine);
+        if (keyboardDriverGroup === undefined) {
             keyboardDriverGroup = WLRoot.keyboardDriver.createGroup({
-                domElem: WLRoot.bindableElement,
+                domElem: WLRoot.getBindableElement(engine),
                 wrapsAround: true
             });
+
+            keyboardDriverGroups.set(engine, keyboardDriverGroup);
         }
 
         return keyboardDriverGroup;
@@ -152,23 +160,23 @@ export class WLRoot extends Root {
     }
 
     unitsPerPixel: number;
-    texture: WL.Texture | null = null;
-    meshObject: WL.Object | null;
-    mesh: WL.Mesh | null = null;
-    meshComponent: WL.MeshComponent | null;
-    materialClone: WL.Material;
+    texture: Texture | null = null;
+    meshObject: $Object | null;
+    mesh: Mesh | null = null;
+    meshComponent: MeshComponent | null;
+    materialClone: Material;
     oldTexSize: [number, number] = [0, 0];
-    collision: WL.CollisionComponent | null = null;
+    collision: CollisionComponent | null = null;
     cursorTarget: CursorTarget | null = null;
 
     protected valid = false;
     protected paintedOnce = false;
     private keydownEventListener: ((event: KeyboardEvent) => void) | null = null;
     private keyupEventListener: ((event: KeyboardEvent) => void) | null = null;
-    private unHoverFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
-    private moveFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
-    private downFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
-    private upFunction: ((object: WL.Object, cursor: Cursor) => void) | null = null;
+    private unHoverFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
+    private moveFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
+    private downFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
+    private upFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
     private boundTo: HTMLElement;
 
     /**
@@ -176,7 +184,7 @@ export class WLRoot extends Root {
      * @param material - The material to use for this root's mesh. The material will be cloned.
      * @param child - The root's child widget.
      */
-    constructor(wlObject: WL.Object, material: WL.Material, child: Widget, properties?: WLRootProperties) {
+    constructor(private wlObject: $Object, material: Material, child: Widget, properties?: WLRootProperties) {
         properties = {
             pointerStyleHandler: style => {
                 this.boundTo.style.cursor = style;
@@ -193,7 +201,7 @@ export class WLRoot extends Root {
 
         super(child, properties);
 
-        this.boundTo = WLRoot.bindableElement;
+        this.boundTo = WLRoot.getBindableElement(wlObject.engine);
         addPasteEventListener(this.boundTo, this);
 
         const collisionGroup = properties.collisionGroup ?? 1;
@@ -201,13 +209,15 @@ export class WLRoot extends Root {
         const registerKeyboardDriver = properties.registerKeyboardDriver ?? true;
         this.unitsPerPixel = properties.unitsPerPixel ?? 0.01;
 
-        if (!WL.scene) {
+        const engine = wlObject.engine;
+
+        if (!engine.scene) {
             throw new Error('No scene available');
         }
 
         // Create the child object where the mesh and collider will be put.
         // Starts inactive since the mesh won't be ready yet
-        this.meshObject = WL.scene.addObject(wlObject);
+        this.meshObject = engine.scene.addObject(wlObject);
         this.meshObject.active = false;
 
         // Setup drivers
@@ -217,12 +227,17 @@ export class WLRoot extends Root {
 
         if(registerKeyboardDriver) {
             const kb = WLRoot.keyboardDriver;
-            kb.bindRoot(this, WLRoot.keyboardDriverGroup);
+            kb.bindRoot(this, WLRoot.getKeyboardDriverGroup(wlObject.engine));
             this.registerDriver(kb);
         }
 
         // Setup mesh for rendering in world
         this.meshComponent = this.meshObject.addComponent('mesh', {});
+
+        if (this.meshComponent === null) {
+            throw new Error('Failed to add mesh component');
+        }
+
         this.meshComponent.active = false;
 
         // keep clone as a variable instead of accessing it later via
@@ -253,10 +268,15 @@ export class WLRoot extends Root {
         // Setup mouse pointer input
         if(collisionGroup !== null) {
             this.collision = this.meshObject.addComponent('collision', {
-                collider: WL.Collider.Box,
+                collider: Collider.Box,
                 extents: [1, 1, 0.01],
                 group: 1 << collisionGroup,
             });
+
+            if (this.collision === null) {
+                throw new Error('Failed to add collision component');
+            }
+
             this.collision.active = false;
 
             this.cursorTarget = this.meshObject.addComponent(CursorTarget, {});
@@ -265,7 +285,7 @@ export class WLRoot extends Root {
             const cursorPos = new Float32Array(3);
             const pos = new Float32Array(3);
             const rot = new Float32Array(4);
-            const meshObject = (this.meshObject as WL.Object);
+            const meshObject = (this.meshObject as $Object);
             const getCursorPos = (cursor: Cursor): [number, number] => {
                 cursorPos.set(cursor.rayHit.locations[0]);
                 meshObject.getTranslationWorld(pos);
@@ -356,7 +376,7 @@ export class WLRoot extends Root {
         }
 
         // We know that this is `valid` and hence not null, typecast
-        const meshObject = (this.meshObject as WL.Object);
+        const meshObject = (this.meshObject as $Object);
 
         // Update (pre-layout)
         this.preLayoutUpdate();
@@ -420,7 +440,7 @@ export class WLRoot extends Root {
             this.oldTexSize[1] = canvasHeight;
             const mat = this.materialClone;
             const oldTexture = this.texture;
-            this.texture = new WL.Texture(this.canvas);
+            this.texture = new Texture(this.wlObject.engine, this.canvas);
             if(mat.shader === 'Flat Opaque Textured' || mat.shader === 'Flat Transparent Textured') {
                 (mat as FlatMaterial).flatTexture = this.texture;
             } else if(mat.shader == 'Phong Opaque Textured') {
@@ -446,7 +466,7 @@ export class WLRoot extends Root {
         super.enabled = enabled;
 
         if(this.paintedOnce) {
-            (this.meshObject as WL.Object).active = this.enabled;
+            (this.meshObject as $Object).active = this.enabled;
         }
     }
 
@@ -455,23 +475,23 @@ export class WLRoot extends Root {
     }
 
     private _setupMesh(uLeft: number, uRight: number, vTop: number, vBottom: number) {
-        const newMesh = new WL.Mesh({
+        const newMesh = new Mesh(this.wlObject.engine, {
             indexData: new Uint8Array([
                 0, 3, 1, // top-right triangle
                 0, 2, 3, // bottom-left triangle
             ]),
-            indexType: WL.MeshIndexType.UnsignedByte,
+            indexType: MeshIndexType.UnsignedByte,
             vertexCount: 4,
         });
 
-        const positions = newMesh.attribute(WL.MeshAttribute.Position);
+        const positions = newMesh.attribute(MeshAttribute.Position);
         if (!positions) {
             throw new Error('Could not get position mesh attribute accessor');
         }
 
-        const normals = newMesh.attribute(WL.MeshAttribute.Normal);
+        const normals = newMesh.attribute(MeshAttribute.Normal);
 
-        const texCoords = newMesh.attribute(WL.MeshAttribute.TextureCoordinate);
+        const texCoords = newMesh.attribute(MeshAttribute.TextureCoordinate);
         if (!texCoords) {
             throw new Error('Could not get texture coordinate mesh attribute accessor');
         }
@@ -496,7 +516,7 @@ export class WLRoot extends Root {
             normals.set(3, [0, 0, 1]); // br
         }
 
-        (this.meshComponent as WL.MeshComponent).mesh = newMesh;
+        (this.meshComponent as MeshComponent).mesh = newMesh;
 
         if(this.mesh) {
             this.mesh.destroy();
