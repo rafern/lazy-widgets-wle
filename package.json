@@ -6,6 +6,7 @@
   "main": "./dist/index.esm.js",
   "exports": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
+  "packageManager": "pnpm@8.1.0",
   "scripts": {
     "lint": "eslint src/ --ext .ts",
     "lint-fix": "eslint src/ --ext .ts --fix",
@@ -13,7 +14,7 @@
     "dev": "esbuild --watch --bundle --sourcemap --keep-names --target=es6 --format=esm --external:lazy-widgets --external:gl-matrix --external:@wonderlandengine/api --outfile=dist/index.esm.js src/index.ts",
     "docs": "typedoc --options typedoc.json",
     "test": "echo Dummy test - TODO implement tests",
-    "clean": "rimraf dist/*",
+    "clean": "shx rm -rf dist/*",
     "pack": "npm run clean && npm run lint && npm run test && npm run docs && npm run build && npm pack"
   },
   "files": [
@@ -41,7 +42,7 @@
     "eslint-plugin-tsdoc": "^0.2.17",
     "gl-matrix": "^3.4.3",
     "lazy-widgets": "^0.3.0",
-    "rimraf": "^4.1.1",
+    "shx": "^0.3.4",
     "typedoc": "^0.23.24",
     "typedoc-plugin-external-resolver": "^1.0.1",
     "typescript": "^4.9.4"

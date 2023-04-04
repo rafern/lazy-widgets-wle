@@ -5,7 +5,7 @@
     "module": "es6",
     "lib": ["ESNext", "dom"],
     "paths": {
-      "@wonderlandengine/components": ["typings/@wonderlandengine/components.d.ts"]
+      "@wonderlandengine/components": ["./typings/@wonderlandengine/components.d.ts"]
     },
     "sourceMap": true,
     "strict": true,

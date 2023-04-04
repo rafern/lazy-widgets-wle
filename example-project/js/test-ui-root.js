@@ -1,11 +1,14 @@
+import { Component, Property } from '@wonderlandengine/api';
 import { Label, Margin, Column, Row, TextInput, TextButton, Alignment, FlexAlignment, ValidatedVariable, Background, RoundedCorners } from 'lazy-widgets';
 import { WLRoot } from '../../dist/index.esm.js';
-/*global WL*/
 
-WL.registerComponent('test-ui-root', {
-    /** Material to apply the canvas texture to */
-    material: {type: WL.Type.Material},
-}, {
+export class TestUIRoot extends Component {
+    static TypeName = 'test-ui-root';
+    static Properties = {
+        /** Material to apply the canvas texture to */
+        material: Property.material(),
+    }
+
     init() {
         const label = new Label('Hello world!');
         this.root = new WLRoot(this.object, this.material,
@@ -31,20 +34,23 @@ WL.registerComponent('test-ui-root', {
                 ),
             ),
         );
-    },
+    }
+
     update(_dt) {
         if(this.root) {
             this.root.update();
         }
-    },
+    }
+
     onActivate() {
         if(this.root) {
             this.root.enabled = true;
         }
-    },
+    }
+
     onDeactivate() {
         if(this.root) {
             this.root.enabled = false;
         }
-    },
-});
+    }
+}
