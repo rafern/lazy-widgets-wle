@@ -4,6 +4,9 @@
     "target": "es6",
     "module": "es6",
     "lib": ["ESNext", "dom"],
+    "paths": {
+      "@wonderlandengine/components": ["typings/@wonderlandengine/components.d.ts"]
+    },
     "sourceMap": true,
     "strict": true,
     "strictFunctionTypes": true,
@@ -23,5 +26,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "types"]
+  "exclude": ["node_modules", "dist", "typings"]
 }

@@ -5,11 +5,8 @@ import { Texture, Collider, Mesh, MeshAttribute, MeshIndexType } from '@wonderla
 import { CursorTarget } from '@wonderlandengine/components';
 
 import type { Widget, RootProperties } from 'lazy-widgets';
-// import type { Cursor } from '@wonderlandengine/components';
+import type { Cursor } from '@wonderlandengine/components';
 import type { Material, MeshComponent, CollisionComponent, Object as $Object, WonderlandEngine } from '@wonderlandengine/api';
-
-// FIXME
-type Cursor = { rayHit: { locations: Array<[x: number, y: number]> } };
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
@@ -280,6 +277,11 @@ export class WLRoot extends Root {
             this.collision.active = false;
 
             this.cursorTarget = this.meshObject.addComponent(CursorTarget, {});
+
+            if (this.cursorTarget === null) {
+                throw new Error('Failed to add cursor-target component');
+            }
+
             this.cursorTarget.active = false;
 
             const cursorPos = new Float32Array(3);
@@ -441,12 +443,12 @@ export class WLRoot extends Root {
             const mat = this.materialClone;
             const oldTexture = this.texture;
             this.texture = new Texture(this.wlObject.engine, this.canvas);
-            if(mat.shader === 'Flat Opaque Textured' || mat.shader === 'Flat Transparent Textured') {
+            if(mat.pipeline === 'Flat Opaque Textured' || mat.pipeline === 'Flat Transparent Textured') {
                 (mat as FlatMaterial).flatTexture = this.texture;
-            } else if(mat.shader == 'Phong Opaque Textured') {
+            } else if(mat.pipeline == 'Phong Opaque Textured') {
                 (mat as DiffuseMaterial).diffuseTexture = this.texture;
             } else {
-                console.error('Shader', mat.shader, 'not supported by WLRoot');
+                console.error('Shader', mat.pipeline, 'not supported by WLRoot');
             }
 
             // Destroy old texture so that there isn't an accumulation of

@@ -1,4 +1,5 @@
 import { Component, Object as $Object, Property } from '@wonderlandengine/api';
+import { Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
 import { WLRoot } from '../core/WLRoot';
 
@@ -57,7 +58,7 @@ export class CanvasUIInputGuardComponent extends Component {
                 }
 
                 if(this.cursorObject !== null) {
-                    const cursor = this.cursorObject.getComponent('cursor', 0);
+                    const cursor = this.cursorObject.getComponent(Cursor, 0);
                     if(cursor === null) {
                         console.warn('cursorObject set in lazy-widgets-keyboard-guard, but cursorObject has no cursor component');
                     } else {
