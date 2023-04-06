@@ -17,6 +17,12 @@ let keyboardDriverGroup: DOMKeyboardDriverGroup | null = null;
 // WLRoot.pointerIDs or WLRoot.getPointerID(cursor)
 let pointerIDs: Map<object, number> | null = null;
 
+const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
+    ['Flat Opaque Textured', 'flatTexture'],
+    ['Flat Transparent Textured', 'flatTexture'],
+    ['Phong Opaque Textured', 'diffuseTexture'],
+]);
+
 /** Impostor interface for the `cursor` WLE component. */
 interface CursorComponent {
     rayHit: any /*WL.RayHit*/,
@@ -34,16 +40,6 @@ interface CursorTargetComponent {
     removeUpFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     destroy(): void,
     active: boolean,
-}
-
-/** Impostor interface for WL.Materials with a flatTexture property. */
-interface FlatMaterial /*extends WL.Material*/ {
-    flatTexture: any /*WL.Texture*/,
-}
-
-/** Impostor interface for WL.Materials with a diffuseTexture property. */
-interface DiffuseMaterial /*extends WL.Material*/ {
-    diffuseTexture: any /*WL.Texture*/,
 }
 
 /**
@@ -75,6 +71,12 @@ export interface WLRootProperties extends RootProperties {
      * is also used elsewhere.
      */
     cloneMaterial?: boolean,
+    /**
+     * Which uniform name should be used for setting the material's texture? If
+     * not passed, then the uniform name will be guessed from the pipeline name,
+     * which will result in an error when an unknown pipeline is used.
+     */
+    textureUniformName?: string,
 }
 
 /**
@@ -177,6 +179,7 @@ export class WLRoot extends Root {
     mesh: any /*WL.Mesh*/ | null = null;
     meshComponent: any /*WL.MeshComponent*/ | null;
     materialClone: any /*WL.Material*/;
+    textureUniformName?: string;
     oldTexSize: [number, number] = [0, 0];
     collision: any /*WL.CollisionComponent*/ | null = null;
     cursorTarget: CursorTargetComponent | null = null;
@@ -220,6 +223,7 @@ export class WLRoot extends Root {
         const registerPointerDriver = properties.registerPointerDriver ?? true;
         const registerKeyboardDriver = properties.registerKeyboardDriver ?? true;
         this.unitsPerPixel = properties.unitsPerPixel ?? 0.01;
+        this.textureUniformName = properties.textureUniformName;
 
         if (!WL.scene) {
             throw new Error('No scene available');
@@ -444,12 +448,12 @@ export class WLRoot extends Root {
             const mat = this.materialClone;
             const oldTexture = this.texture;
             this.texture = new WL.Texture(this.canvas);
-            if(mat.shader === 'Flat Opaque Textured' || mat.shader === 'Flat Transparent Textured') {
-                (mat as FlatMaterial).flatTexture = this.texture;
-            } else if(mat.shader == 'Phong Opaque Textured') {
-                (mat as DiffuseMaterial).diffuseTexture = this.texture;
+
+            const textureUniformName = this.textureUniformName ?? DEFAULT_TEXTURE_UNIFORMS.get(mat.shader);
+            if (textureUniformName === undefined) {
+                console.error(`Pipeline "${mat.shader}" not supported by WLRoot without specifying a texture uniform name (textureUniformName property)`);
             } else {
-                console.error('Shader', mat.shader, 'not supported by WLRoot');
+                mat[textureUniformName] = this.texture;
             }
 
             // Destroy old texture so that there isn't an accumulation of
