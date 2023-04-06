@@ -16,8 +16,8 @@ devDependencies:
     specifier: ^1.0.0-rc.2
     version: 1.0.0-rc.2
   '@wonderlandengine/components':
-    specifier: ^1.0.0-rc.2
-    version: 1.0.0-rc.2
+    specifier: ^1.0.0-rc.3
+    version: 1.0.0-rc.3
   esbuild:
     specifier: ^0.17.4
     version: 0.17.4
@@ -458,13 +458,6 @@ packages:
       eslint-visitor-keys: 3.4.0
     dev: true
 
-  /@wonderlandengine/api@0.9.8:
-    resolution: {integrity: sha512-29BwD44c7ZyNitH76VVOtBdVq7P0wIBIpgSMNSeqL29qetv3mu7eiWVPaFSZZRxhxTayXrVOj/kuUg6mMzI/BA==}
-    dependencies:
-      '@types/webxr': 0.5.1
-      wasm-feature-detect: 1.5.1
-    dev: true
-
   /@wonderlandengine/api@1.0.0-rc.2:
     resolution: {integrity: sha512-ApVk3Zum0GaoHSlRS46qP2YD5nxrhWY3/+zL1DhLzRRhTLIc5+FPkC+qZ/zSWqWC7HddPTX/+BmkSjotoOF5wQ==}
     dependencies:
@@ -472,10 +465,11 @@ packages:
       wasm-feature-detect: 1.5.1
     dev: true
 
-  /@wonderlandengine/components@1.0.0-rc.2:
-    resolution: {integrity: sha512-fctJdqvpBYrA/4lp7le89BCoMbWMbHErHmgcUaOiFlPKuim2AKpPbk1StbNLRZvK0SrmXzs0w2TJbtwyEoZ8Ww==}
+  /@wonderlandengine/components@1.0.0-rc.3:
+    resolution: {integrity: sha512-VYYBINu/WhlgvgsJU7v28/Pg+AlJEjV4oFYLZ5W9ZAFF8DaiPZGfupLC85LJY/S8I3O4W8pzZDv+7G067rmrHA==}
     dependencies:
-      '@wonderlandengine/api': 0.9.8
+      '@types/webxr': 0.5.1
+      '@wonderlandengine/api': 1.0.0-rc.2
       gl-matrix: 3.4.3
       howler: 2.2.3
     dev: true
