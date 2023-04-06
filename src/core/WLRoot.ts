@@ -19,8 +19,13 @@ let pointerIDs: Map<object, number> | null = null;
 
 const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
     ['Flat Opaque Textured', 'flatTexture'],
-    ['Flat Transparent Textured', 'flatTexture'],
     ['Phong Opaque Textured', 'diffuseTexture'],
+    ['Physical Opaque Textured', 'albedoTexture'],
+    ['Flat Transparent Textured', 'flatTexture'],
+    ['Phong Transparent Textured', 'diffuseTexture'],
+    ['Physical Transparent Textured', 'albedoTexture'],
+    ['Phong Normalmapped', 'diffuseTexture'],
+    ['Phong Lightmapped', 'diffuseTexture'],
 ]);
 
 /** Impostor interface for the `cursor` WLE component. */
