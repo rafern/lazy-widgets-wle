@@ -1,4 +1,4 @@
-import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup } from 'lazy-widgets';
+import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup, PointerWheelMode } from 'lazy-widgets';
 import type { Widget, RootProperties } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener';
@@ -31,6 +31,8 @@ const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
 /** Impostor interface for the `cursor` WLE component. */
 interface CursorComponent {
     rayHit: any /*WL.RayHit*/,
+    deltaX: number,
+    deltaY: number,
 }
 
 /** Impostor interface for the `cursor-target` WLE component. */
@@ -39,10 +41,12 @@ interface CursorTargetComponent {
     addMoveFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     addDownFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     addUpFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
+    addWheelFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     removeUnHoverFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     removeMoveFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     removeDownFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     removeUpFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
+    removeWheelFunction(callback: (object: any /*WL.Object*/, cursor: CursorComponent) => void): void,
     destroy(): void,
     active: boolean,
 }
@@ -197,6 +201,7 @@ export class WLRoot extends Root {
     private moveFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
     private downFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
     private upFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
+    private wheelFunction: ((object: any /*WL.Object*/, cursor: CursorComponent) => void) | null = null;
     private boundTo: HTMLElement;
 
     /**
@@ -366,10 +371,17 @@ export class WLRoot extends Root {
                     );
                 };
 
+                this.wheelFunction = (_: any /*WL.Object*/, cursor: CursorComponent) => {
+                    WLRoot.pointerDriver.wheelPointer(
+                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.deltaX, cursor.deltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
+                    );
+                };
+
                 this.cursorTarget.addUnHoverFunction(this.unHoverFunction);
                 this.cursorTarget.addMoveFunction(this.moveFunction);
                 this.cursorTarget.addDownFunction(this.downFunction);
                 this.cursorTarget.addUpFunction(this.upFunction);
+                this.cursorTarget.addWheelFunction(this.wheelFunction);
             }
         }
 
@@ -570,6 +582,11 @@ export class WLRoot extends Root {
             if(this.upFunction !== null) {
                 this.cursorTarget.removeUpFunction(this.upFunction);
                 this.upFunction = null;
+            }
+
+            if(this.wheelFunction !== null) {
+                this.cursorTarget.removeWheelFunction(this.wheelFunction);
+                this.wheelFunction = null;
             }
         }
 
