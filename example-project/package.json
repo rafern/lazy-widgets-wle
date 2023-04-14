@@ -6,9 +6,6 @@
   "type": "module",
   "module": "js/index.js",
   "packageManager": "npm@8.19.2",
-  "scripts": {
-    "build": "esbuild ./js/index.js --bundle --outfile=\"deploy/lazy-widgets-wle-example-project-bundle.js\""
-  },
   "keywords": [
     "wonderland-engine"
   ],
