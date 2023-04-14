@@ -106,7 +106,8 @@
                 {
                     "type": "cursor",
                     "cursor": {
-                        "styleCursor": false
+                        "styleCursor": false,
+                        "handedness": "none"
                     }
                 }
             ]
