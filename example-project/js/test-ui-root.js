@@ -17,9 +17,9 @@ export class TestUIRoot extends Component {
                     new Margin(
                         new Column([
                             label,
-                            new TextInput(new ValidatedVariable('', null, value => {
-                                label.text = `Text input: ${value}`;
-                            }, false)),
+                            new TextInput(new ValidatedVariable('', null).watch(variable => {
+                                label.text = `Text input: ${variable.value}`;
+                            })),
                             new Row([
                                 new TextButton('Button 1'),
                                 new TextButton('Button 2'),

@@ -296,15 +296,16 @@ export class WLRoot extends Root {
             this.cursorTarget.active = false;
 
             const cursorPos = new Float32Array(3);
-            const pos = new Float32Array(3);
             const rot = new Float32Array(4);
             const meshObject = (this.meshObject as $Object);
             const getCursorPos = (cursor: Cursor): [number, number] => {
-                cursorPos.set(cursor.rayHit.locations[0]);
-                meshObject.getTranslationWorld(pos);
-                vec3.sub(cursorPos, cursorPos, pos);
-                meshObject.getRotationWorld(TMP_VEC);
-                quat.invert(rot, TMP_VEC);
+                cursorPos.set(cursor.cursorPos);
+                meshObject.getTranslationWorld(TMP_VEC);
+                vec3.sub(cursorPos, cursorPos, TMP_VEC);
+                // TODO getRotationWorld is broken, use rotationWorld for now
+                // meshObject.getRotationWorld(TMP_VEC);
+                // quat.invert(rot, TMP_VEC);
+                quat.invert(rot, meshObject.rotationWorld);
                 vec3.transformQuat(cursorPos, cursorPos, rot);
                 meshObject.getScalingWorld(TMP_VEC);
                 vec3.div(cursorPos, cursorPos, TMP_VEC);

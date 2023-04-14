@@ -13,11 +13,11 @@
 
 /* wle:auto-imports:start */
 import {Cursor} from '@wonderlandengine/components';
-import {CanvasUIInputGuardComponent} from 'lazy-widgets-wle';
 import {MouseLookComponent} from '@wonderlandengine/components';
-import {TestUIRoot} from './test-ui-root.js';
-import {VirtualKeyboardUIRootComponent} from 'lazy-widgets-wle';
 import {WasdControlsComponent} from '@wonderlandengine/components';
+import {CanvasUIInputGuardComponent} from 'lazy-widgets-wle';
+import {VirtualKeyboardUIRootComponent} from 'lazy-widgets-wle';
+import {TestUIRoot} from './test-ui-root.js';
 /* wle:auto-imports:end */
 // HACK need to manually import CursorTarget because Component Dependencies
 //      aren't added yet
@@ -31,6 +31,9 @@ const ProjectName = 'lazy-widgets-wle-example-project';
 const RuntimeBaseName = 'WonderlandRuntime';
 const WithPhysX = false;
 const WithLoader = false;
+const WebXRFramebufferScaleFactor = 1;
+const WebXRRequiredFeatures = ['local',];
+const WebXROptionalFeatures = ['local','hand-tracking','hit-test',];
 /* wle:auto-constants:end */
 
 const engine = await loadRuntime(RuntimeBaseName, {
@@ -60,11 +63,11 @@ if(vrButton) {
 
 /* wle:auto-register:start */
 engine.registerComponent(Cursor);
-engine.registerComponent(CanvasUIInputGuardComponent);
 engine.registerComponent(MouseLookComponent);
-engine.registerComponent(TestUIRoot);
-engine.registerComponent(VirtualKeyboardUIRootComponent);
 engine.registerComponent(WasdControlsComponent);
+engine.registerComponent(CanvasUIInputGuardComponent);
+engine.registerComponent(VirtualKeyboardUIRootComponent);
+engine.registerComponent(TestUIRoot);
 /* wle:auto-register:end */
 engine.registerComponent(CursorTarget);
 
