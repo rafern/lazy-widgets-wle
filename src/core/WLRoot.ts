@@ -18,6 +18,8 @@ const keyboardDriverGroups = new WeakMap<WonderlandEngine, DOMKeyboardDriverGrou
 // WLRoot.pointerIDs or WLRoot.getPointerID(cursor)
 let pointerIDs: Map<Cursor, number> | null = null;
 
+const TMP_VEC = new Float32Array(4);
+
 const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
     ['Flat Opaque Textured', 'flatTexture'],
     ['Phong Opaque Textured', 'diffuseTexture'],
@@ -301,9 +303,11 @@ export class WLRoot extends Root {
                 cursorPos.set(cursor.rayHit.locations[0]);
                 meshObject.getTranslationWorld(pos);
                 vec3.sub(cursorPos, cursorPos, pos);
-                quat.invert(rot, meshObject.rotationWorld);
+                meshObject.getRotationWorld(TMP_VEC);
+                quat.invert(rot, TMP_VEC);
                 vec3.transformQuat(cursorPos, cursorPos, rot);
-                vec3.div(cursorPos, cursorPos, meshObject.scalingWorld);
+                meshObject.getScalingWorld(TMP_VEC);
+                vec3.div(cursorPos, cursorPos, TMP_VEC);
 
                 return [
                     Math.min(Math.max((cursorPos[0] + 1) / 2, 0), 1),
@@ -365,10 +369,10 @@ export class WLRoot extends Root {
                     );
                 };
 
-                this.cursorTarget.addUnHoverFunction(this.unHoverFunction);
-                this.cursorTarget.addMoveFunction(this.moveFunction);
-                this.cursorTarget.addDownFunction(this.downFunction);
-                this.cursorTarget.addUpFunction(this.upFunction);
+                this.cursorTarget.onUnhover.add(this.unHoverFunction);
+                this.cursorTarget.onMove.add(this.moveFunction);
+                this.cursorTarget.onDown.add(this.downFunction);
+                this.cursorTarget.onUp.add(this.upFunction);
             }
         }
 
@@ -402,18 +406,15 @@ export class WLRoot extends Root {
             const [width, height] = this.dimensions;
             const [scaleX, scaleY] = this.effectiveScale;
             meshObject.resetScaling();
-            meshObject.scale([
+            meshObject.scaleLocal([
                 this.unitsPerPixel * width,
                 this.unitsPerPixel * height,
                 0.01,
             ]);
 
             if(this.collision !== null) {
-                this.collision.extents = [
-                    meshObject.scalingWorld[0],
-                    meshObject.scalingWorld[1],
-                    0.01,
-                ];
+                meshObject.getScalingLocal(TMP_VEC);
+                this.collision.extents = [ TMP_VEC[0], TMP_VEC[1], 0.01 ];
             }
 
             let uBorder = 0, vBorder = 0;
@@ -552,22 +553,22 @@ export class WLRoot extends Root {
 
         if(this.cursorTarget) {
             if(this.unHoverFunction !== null) {
-                this.cursorTarget.removeUnHoverFunction(this.unHoverFunction);
+                this.cursorTarget.onUnhover.remove(this.unHoverFunction);
                 this.unHoverFunction = null;
             }
 
             if(this.moveFunction !== null) {
-                this.cursorTarget.removeMoveFunction(this.moveFunction);
+                this.cursorTarget.onMove.remove(this.moveFunction);
                 this.moveFunction = null;
             }
 
             if(this.downFunction !== null) {
-                this.cursorTarget.removeDownFunction(this.downFunction);
+                this.cursorTarget.onDown.remove(this.downFunction);
                 this.downFunction = null;
             }
 
             if(this.upFunction !== null) {
-                this.cursorTarget.removeUpFunction(this.upFunction);
+                this.cursorTarget.onUp.remove(this.upFunction);
                 this.upFunction = null;
             }
         }

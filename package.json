@@ -35,8 +35,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "@typescript-eslint/parser": "^5.48.2",
-    "@wonderlandengine/api": "^1.0.0-rc.2",
-    "@wonderlandengine/components": "^1.0.0-rc.3",
+    "@wonderlandengine/api": "^1.0.0-rc.5",
+    "@wonderlandengine/components": "^1.0.0-rc.6",
     "esbuild": "^0.17.4",
     "eslint": "^8.32.0",
     "eslint-plugin-tsdoc": "^0.2.17",
@@ -48,7 +48,7 @@
     "typescript": "^4.9.4"
   },
   "peerDependencies": {
-    "@wonderlandengine/api": ">= 1.0.0-rc.3",
+    "@wonderlandengine/api": ">= 1.0.0-rc.5",
     "gl-matrix": "3.x",
     "lazy-widgets": ">= 0.3.0 < 1"
   },
