@@ -1,44 +1,41 @@
+import { Component, Object as $Object, Property } from '@wonderlandengine/api';
+import { Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
 import { WLRoot } from '../core/WLRoot';
 
-// TODO use proper WLE types when official typescript support is released
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare const WL: any;
+// TODO use decorators
 
-interface CanvasUIInputGuardComponent {
-    init(): void;
-    start(): void;
-    update(dt: number): void;
-    onDeactivate(): void;
+export class CanvasUIInputGuardComponent extends Component {
+    keyboardComponentName!: string;
+    keyboardObject!: $Object | null;
+    pointerComponentName!: string;
+    pointerObject!: $Object | null;
+    cursorObject!: $Object | null;
+    pointer!: number | null;
+    pointerComponent!: Component | null;
+    keyboardComponent!: Component | null;
 
-    pointer: number | null;
-    pointerComponent: any /*WL.Component*/ | null;
-    keyboardComponent: any /*WL.Component*/ | null;
-    keyboardObject: any /*WL.Object*/;
-    pointerObject: any /*WL.Object*/;
-    cursorObject: any /*WL.Object*/;
-    keyboardComponentName: string;
-    pointerComponentName: string;
-}
+    static override TypeName = 'lazy-widgets-input-guard';
+    static override Properties = {
+        /** (optional) Name of component to disable if keyboard is in use */
+        keyboardComponentName: Property.string(),
+        /** (optional) Object containing component to disable if keyboard is in use. Required if keyboardComponentName is set, else, ignored */
+        keyboardObject: Property.object(),
+        /** (optional) Name of component to disable if pointer is hovering a UI root is in use */
+        pointerComponentName: Property.string(),
+        /** (optional) Object containing component to disable if pointer is hovering a UI root. Required if pointerComponentName is set, else, ignored */
+        pointerObject: Property.object(),
+        /** (optional) Object which has a cursor component. Required if pointerObject is set, else, ignored */
+        cursorObject: Property.object(),
+    };
 
-WL.registerComponent('lazy-widgets-input-guard', {
-    /** (optional) Name of component to disable if keyboard is in use */
-    keyboardComponentName: {type: WL.Type.String, default: ''},
-    /** (optional) Object containing component to disable if keyboard is in use. Required if keyboardComponentName is set, else, ignored */
-    keyboardObject: {type: WL.Type.Object, default: null},
-    /** (optional) Name of component to disable if pointer is hovering a UI root is in use */
-    pointerComponentName: {type: WL.Type.String, default: ''},
-    /** (optional) Object containing component to disable if pointer is hovering a UI root. Required if pointerComponentName is set, else, ignored */
-    pointerObject: {type: WL.Type.Object, default: null},
-    /** (optional) Object which has a cursor component. Required if pointerObject is set, else, ignored */
-    cursorObject: {type: WL.Type.Object, default:null},
-}, <CanvasUIInputGuardComponent>{
-    init() {
+    override init() {
         this.pointer = null;
         this.pointerComponent = null;
         this.keyboardComponent = null;
-    },
-    start() {
+    }
+
+    override start() {
         if(this.keyboardComponentName !== '') {
             if(this.keyboardObject !== null) {
                 const keyboardComponent = this.keyboardObject.getComponent(this.keyboardComponentName, 0);
@@ -61,7 +58,7 @@ WL.registerComponent('lazy-widgets-input-guard', {
                 }
 
                 if(this.cursorObject !== null) {
-                    const cursor = this.cursorObject.getComponent('cursor', 0);
+                    const cursor = this.cursorObject.getComponent(Cursor, 0);
                     if(cursor === null) {
                         console.warn('cursorObject set in lazy-widgets-keyboard-guard, but cursorObject has no cursor component');
                     } else {
@@ -75,9 +72,9 @@ WL.registerComponent('lazy-widgets-input-guard', {
                 console.warn('pointerComponentName set in lazy-widgets-keyboard-guard, but pointerObject was not');
             }
         }
+    }
 
-    },
-    update(_dt) {
+    override update(_dt: number) {
         if(this.keyboardComponent !== null) {
             const enable = !WLRoot.keyboardDriver.needsInput;
             this.keyboardComponent.active = enable;
@@ -87,8 +84,9 @@ WL.registerComponent('lazy-widgets-input-guard', {
             const enable = (WLRoot.pointerDriver.getPointerHint(this.pointer) === PointerHint.None);
             this.pointerComponent.active = enable;
         }
-    },
-    onDeactivate() {
+    }
+
+    override onDeactivate() {
         if(this.keyboardComponent !== null) {
             this.keyboardComponent.active = true;
         }
@@ -96,5 +94,5 @@ WL.registerComponent('lazy-widgets-input-guard', {
         if(this.pointerComponent !== null) {
             this.pointerComponent.active = true;
         }
-    },
-});
+    }
+}

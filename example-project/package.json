@@ -1,14 +1,20 @@
 {
-  "name": "example-project",
+  "name": "lazy-widgets-wle-example-project",
   "version": "1.0.0",
   "description": "lazy-widgets-wle example project",
-  "main": "js/bundle.js",
-  "scripts": {
-    "build": "esbuild js/bundle.js --bundle --outfile=deploy/lazy-widgets-wle-example-project-bundle.js"
-  },
+  "main": "js/index.js",
+  "type": "module",
+  "module": "js/index.js",
+  "packageManager": "npm@8.19.2",
+  "keywords": [
+    "wonderland-engine"
+  ],
   "author": "rafern",
   "license": "CC0-1.0",
-  "devDependencies": {
-    "@wonderlandengine/components": "0.9.2"
+  "dependencies": {
+    "@wonderlandengine/api": "^1.0.0-rc.5",
+    "@wonderlandengine/components": "^1.0.0-rc.6",
+    "gl-matrix": "^3.4.3",
+    "lazy-widgets-wle": "file:.."
   }
 }

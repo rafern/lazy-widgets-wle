@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "//": "This file just prevents errors when building the project, despite not using Typescript. This is because the parent folder's tsconfig.json is auto-picked",
+    "target": "ESNext"
+  }
+}

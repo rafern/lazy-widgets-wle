@@ -1,53 +1,49 @@
+import { Component, Material, Property } from '@wonderlandengine/api';
 import { WLVirtualKeyboardRoot } from '../core/WLVirtualKeyboardRoot';
 
-// TODO use proper WLE types when official typescript support is released
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare const WL: any;
+// TODO use decorators
 
-interface VirtualKeyboardUIRootComponent {
-    init(): void;
-    update(dt: number): void;
-    onActivate(): void;
-    onDeactivate(): void;
+export class VirtualKeyboardUIRootComponent extends Component {
+    static override TypeName = 'virtual-keyboard-ui-root';
+    static override Properties = {
+        /** Material to apply the canvas texture to */
+        material: Property.material(),
+        /** (optional) Should the material be cloned? */
+        cloneMaterial: Property.bool(),
+    }
 
-    root: WLVirtualKeyboardRoot;
-    forceDisabled: boolean;
-    object: any /*WL.Object*/;
-    material: any /*WL.Material*/;
-    active: boolean;
-    cloneMaterial: boolean;
-}
+    material!: Material;
+    cloneMaterial!: boolean;
+    root!: WLVirtualKeyboardRoot;
+    forceDisabled!: boolean;
 
-WL.registerComponent('virtual-keyboard-ui-root', {
-    /** Material to apply the canvas texture to */
-    material: {type: WL.Type.Material},
-    /** Should the material be cloned? */
-    cloneMaterial: {type: WL.Type.Bool, default: true},
-}, <VirtualKeyboardUIRootComponent>{
-    init() {
+    override init() {
         this.root = new WLVirtualKeyboardRoot(
             this.object,
             this.material,
             { cloneMaterial: this.cloneMaterial }
         );
         this.forceDisabled = false;
-    },
-    update(_dt) {
+    }
+
+    override update(_dt: number) {
         if(this.root && !this.forceDisabled) {
             this.root.updateVisibility();
             this.root.update();
         }
-    },
-    onActivate() {
+    }
+
+    override onActivate() {
         if(this.root) {
             this.forceDisabled = false;
             this.root.enabled = true;
         }
-    },
-    onDeactivate() {
+    }
+
+    override onDeactivate() {
         if(this.root) {
             this.forceDisabled = true;
             this.root.enabled = false;
         }
-    },
-});
+    }
+}

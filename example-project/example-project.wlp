@@ -31,7 +31,7 @@
                 0.0,
                 -0.7071068
             ],
-            "scale": [
+            "scaling": [
                 0.9999998,
                 1.0,
                 0.9999998
@@ -59,7 +59,7 @@
                 0.0,
                 0.7069638
             ],
-            "scale": [
+            "scaling": [
                 4.0,
                 4.0,
                 4.0
@@ -87,7 +87,7 @@
                 0.0,
                 1.0
             ],
-            "scale": [
+            "scaling": [
                 0.5,
                 0.5,
                 0.5
@@ -106,7 +106,8 @@
                 {
                     "type": "cursor",
                     "cursor": {
-                        "styleCursor": false
+                        "styleCursor": false,
+                        "handedness": "none"
                     }
                 }
             ]
@@ -162,7 +163,7 @@
                 0.0,
                 1.0
             ],
-            "scale": [
+            "scaling": [
                 1.0,
                 1.0,
                 1.0
@@ -189,7 +190,7 @@
                 0.0,
                 1.0
             ],
-            "scale": [
+            "scaling": [
                 1.0,
                 1.0,
                 1.0
@@ -217,7 +218,7 @@
                 0.0,
                 1.0
             ],
-            "scale": [
+            "scaling": [
                 1.0,
                 1.0,
                 1.0
@@ -245,7 +246,7 @@
                 0.0,
                 1.0
             ],
-            "scale": [
+            "scaling": [
                 0.75,
                 0.75,
                 0.75
@@ -294,7 +295,7 @@
                 -5.711168071798056e-8,
                 -0.3826834
             ],
-            "scale": [
+            "scaling": [
                 0.5,
                 0.5,
                 0.5
@@ -331,7 +332,7 @@
                 0.0,
                 0.7071067
             ],
-            "scale": [
+            "scaling": [
                 1.0000001,
                 1.0,
                 1.0000001
@@ -368,7 +369,7 @@
                 0.0,
                 0.7071067
             ],
-            "scale": [
+            "scaling": [
                 1.0000001,
                 1.0,
                 1.0000001
@@ -396,7 +397,7 @@
                 0.0,
                 0.7071068
             ],
-            "scale": [
+            "scaling": [
                 0.0049998,
                 0.5,
                 0.0049998
@@ -424,7 +425,7 @@
                 0.0,
                 0.7071068
             ],
-            "scale": [
+            "scaling": [
                 0.0049998,
                 0.5,
                 0.0049998
@@ -705,9 +706,10 @@
         "project": {
             "name": "lazy-widgets-wle-example-project",
             "version": [
+                1,
                 0,
-                9,
-                5
+                0,
+                2
             ]
         },
         "vr": {
@@ -716,10 +718,12 @@
         },
         "scripting": {
             "sourcePaths": [
-                "/js/editor-components-bundle.js",
                 "js/"
             ],
-            "useInternalBundler": false
+            "libraryPaths": [
+                "/js/lib/"
+            ],
+            "bundlingType": "esbuild"
         }
     },
     "animations": {},
@@ -835,5 +839,6 @@
                 "file": "default"
             }
         }
-    }
+    },
+    "languages": {}
 }
