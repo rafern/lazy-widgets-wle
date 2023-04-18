@@ -1,18 +1,17 @@
-import { Component, Material, Property } from '@wonderlandengine/api';
+import { Component, Material } from '@wonderlandengine/api';
+import { property } from '@wonderlandengine/api/dist/decorators.js';
 import { WLVirtualKeyboardRoot } from '../core/WLVirtualKeyboardRoot';
 
 // TODO use decorators
 
 export class VirtualKeyboardUIRootComponent extends Component {
     static override TypeName = 'virtual-keyboard-ui-root';
-    static override Properties = {
-        /** Material to apply the canvas texture to */
-        material: Property.material(),
-        /** (optional) Should the material be cloned? */
-        cloneMaterial: Property.bool(),
-    }
 
+    /** Material to apply the canvas texture to */
+    @property.material()
     material!: Material;
+    /** (optional) Should the material be cloned? */
+    @property.bool()
     cloneMaterial!: boolean;
     root!: WLVirtualKeyboardRoot;
     forceDisabled!: boolean;

@@ -1,4 +1,5 @@
-import { Component, Object as $Object, Property } from '@wonderlandengine/api';
+import { Component, Object as $Object } from '@wonderlandengine/api';
+import { property } from '@wonderlandengine/api/dist/decorators.js';
 import { Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
 import { WLRoot } from '../core/WLRoot';
@@ -6,28 +7,39 @@ import { WLRoot } from '../core/WLRoot';
 // TODO use decorators
 
 export class CanvasUIInputGuardComponent extends Component {
+    /** (optional) Name of component to disable if keyboard is in use */
+    @property.string()
     keyboardComponentName!: string;
+    /**
+     * (optional) Object containing component to disable if keyboard is in use.
+     * Required if keyboardComponentName is set, else, ignored
+     */
+    @property.object()
     keyboardObject!: $Object | null;
+    /**
+     * (optional) Name of component to disable if pointer is hovering a UI root
+     * is in use
+     */
+    @property.string()
     pointerComponentName!: string;
+    /**
+     * (optional) Object containing component to disable if pointer is hovering
+     * a UI root. Required if pointerComponentName is set, else, ignored
+     */
+    @property.object()
     pointerObject!: $Object | null;
+    /**
+     * (optional) Object which has a cursor component. Required if pointerObject
+     * is set, else, ignored
+     */
+    @property.object()
     cursorObject!: $Object | null;
+
     pointer!: number | null;
     pointerComponent!: Component | null;
     keyboardComponent!: Component | null;
 
     static override TypeName = 'lazy-widgets-input-guard';
-    static override Properties = {
-        /** (optional) Name of component to disable if keyboard is in use */
-        keyboardComponentName: Property.string(),
-        /** (optional) Object containing component to disable if keyboard is in use. Required if keyboardComponentName is set, else, ignored */
-        keyboardObject: Property.object(),
-        /** (optional) Name of component to disable if pointer is hovering a UI root is in use */
-        pointerComponentName: Property.string(),
-        /** (optional) Object containing component to disable if pointer is hovering a UI root. Required if pointerComponentName is set, else, ignored */
-        pointerObject: Property.object(),
-        /** (optional) Object which has a cursor component. Required if pointerObject is set, else, ignored */
-        cursorObject: Property.object(),
-    };
 
     override init() {
         this.pointer = null;
