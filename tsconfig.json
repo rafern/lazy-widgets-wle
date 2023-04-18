@@ -5,6 +5,7 @@
     "module": "es6",
     "lib": ["ESNext", "dom"],
     "sourceMap": true,
+    "sourceRoot": "https://raw.githubusercontent.com/rafern/lazy-widgets-wle/main/",
     "strict": true,
     "strictFunctionTypes": true,
     "noImplicitReturns": true,
@@ -19,8 +20,7 @@
     "esModuleInterop": true,
     "noImplicitOverride": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "emitDeclarationOnly": true
+    "moduleResolution": "nodenext"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "typings"]

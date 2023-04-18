@@ -1,6 +1,6 @@
 // core
-export * from './core/WLRoot';
-export * from './core/WLVirtualKeyboardRoot';
+export * from './core/WLRoot.js';
+export * from './core/WLVirtualKeyboardRoot.js';
 // wonderland engine components
-export * from './components/lazy-widgets-input-guard';
-export * from './components/virtual-keyboard-ui-root';
+export * from './components/lazy-widgets-input-guard.js';
+export * from './components/virtual-keyboard-ui-root.js';

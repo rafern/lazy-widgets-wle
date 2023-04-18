@@ -1,9 +1,9 @@
 import { VirtualKeyboard, defaultVirtualKeyboardTemplate, Margin, Background } from 'lazy-widgets';
-import { WLRoot } from './WLRoot';
+import { WLRoot } from './WLRoot.js';
 import * as WL from '@wonderlandengine/api';
 
 import type { VirtualKeyboardRootProperties, KeyboardDriver } from 'lazy-widgets';
-import type { WLRootProperties } from './WLRoot';
+import type { WLRootProperties } from './WLRoot.js';
 
 /**
  * Optional WLVirtualKeyboardRoot constructor properties.

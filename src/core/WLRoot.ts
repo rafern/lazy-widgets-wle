@@ -1,6 +1,6 @@
-import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup } from 'lazy-widgets';
+import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup, PointerWheelMode } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
-import { addPasteEventListener, removePasteEventListener } from './paste-event-listener';
+import { addPasteEventListener, removePasteEventListener } from './paste-event-listener.js';
 import { Texture, Collider, Mesh, MeshAttribute, MeshIndexType } from '@wonderlandengine/api';
 import { CursorTarget } from '@wonderlandengine/components';
 
@@ -184,6 +184,7 @@ export class WLRoot extends Root {
     private moveFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
     private downFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
     private upFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
+    private wheelFunction: ((object: $Object, cursor: Cursor) => void) | null = null;
     private boundTo: HTMLElement;
 
     /**
@@ -370,10 +371,17 @@ export class WLRoot extends Root {
                     );
                 };
 
+                this.wheelFunction = (_, cursor: Cursor) => {
+                    WLRoot.pointerDriver.wheelPointer(
+                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.wheelDeltaX, cursor.wheelDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
+                    );
+                };
+
                 this.cursorTarget.onUnhover.add(this.unHoverFunction);
                 this.cursorTarget.onMove.add(this.moveFunction);
                 this.cursorTarget.onDown.add(this.downFunction);
                 this.cursorTarget.onUp.add(this.upFunction);
+                this.cursorTarget.onWheel.add(this.wheelFunction);
             }
         }
 
@@ -571,6 +579,11 @@ export class WLRoot extends Root {
             if(this.upFunction !== null) {
                 this.cursorTarget.onUp.remove(this.upFunction);
                 this.upFunction = null;
+            }
+
+            if(this.wheelFunction !== null) {
+                this.cursorTarget.onWheel.remove(this.wheelFunction);
+                this.wheelFunction = null;
             }
         }
 

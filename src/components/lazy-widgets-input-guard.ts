@@ -1,8 +1,8 @@
 import { Component, Object as $Object } from '@wonderlandengine/api';
-import { property } from '@wonderlandengine/api/dist/decorators.js';
+import { property } from '@wonderlandengine/api/decorators.js';
 import { Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
-import { WLRoot } from '../core/WLRoot';
+import { WLRoot } from '../core/WLRoot.js';
 
 // TODO use decorators
 

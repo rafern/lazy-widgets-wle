@@ -1,5 +1,5 @@
 import { FocusType, TextPasteEvent } from 'lazy-widgets';
-import { WLRoot } from './WLRoot';
+import { WLRoot } from './WLRoot.js';
 
 const listeningRoots = new Map<HTMLElement, [roots: Set<WLRoot>, listener: (event: ClipboardEvent) => void]>();
 

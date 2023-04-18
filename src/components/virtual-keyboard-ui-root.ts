@@ -1,6 +1,6 @@
 import { Component, Material } from '@wonderlandengine/api';
-import { property } from '@wonderlandengine/api/dist/decorators.js';
-import { WLVirtualKeyboardRoot } from '../core/WLVirtualKeyboardRoot';
+import { property } from '@wonderlandengine/api/decorators.js';
+import { WLVirtualKeyboardRoot } from '../core/WLVirtualKeyboardRoot.js';
 
 // TODO use decorators
 
