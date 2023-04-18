@@ -1,6 +1,6 @@
 import { Component, Property } from '@wonderlandengine/api';
 import { Label, Margin, Column, Row, TextInput, TextButton, Alignment, FlexAlignment, ValidatedVariable, Background, RoundedCorners } from 'lazy-widgets';
-import { WLRoot } from '../../dist/index.esm.js';
+import { WLRoot } from '../../dist/index.js';
 
 export class TestUIRoot extends Component {
     static TypeName = 'test-ui-root';
