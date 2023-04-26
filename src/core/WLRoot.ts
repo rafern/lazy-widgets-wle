@@ -373,7 +373,7 @@ export class WLRoot extends Root {
 
                 this.wheelFunction = (_, cursor: Cursor) => {
                     WLRoot.pointerDriver.wheelPointer(
-                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.wheelDeltaX, cursor.wheelDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
+                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
                     );
                 };
 
@@ -381,7 +381,7 @@ export class WLRoot extends Root {
                 this.cursorTarget.onMove.add(this.moveFunction);
                 this.cursorTarget.onDown.add(this.downFunction);
                 this.cursorTarget.onUp.add(this.upFunction);
-                this.cursorTarget.onWheel.add(this.wheelFunction);
+                this.cursorTarget.onScroll.add(this.wheelFunction);
             }
         }
 
@@ -582,7 +582,7 @@ export class WLRoot extends Root {
             }
 
             if(this.wheelFunction !== null) {
-                this.cursorTarget.onWheel.remove(this.wheelFunction);
+                this.cursorTarget.onScroll.remove(this.wheelFunction);
                 this.wheelFunction = null;
             }
         }

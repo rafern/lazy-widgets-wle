@@ -107,7 +107,8 @@
                     "type": "cursor",
                     "cursor": {
                         "styleCursor": false,
-                        "handedness": "none"
+                        "handedness": "none",
+                        "emulateXRScroll": false
                     }
                 }
             ]
@@ -353,7 +354,8 @@
                         "handedness": "right",
                         "styleCursor": false,
                         "cursorObject": null,
-                        "cursorRayObject": "67"
+                        "cursorRayObject": "67",
+                        "emulateXRScroll": true
                     }
                 }
             ],
