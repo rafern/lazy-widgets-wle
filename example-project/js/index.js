@@ -24,6 +24,7 @@ import {TestUIRoot} from './test-ui-root.js';
 import {CursorTarget} from '@wonderlandengine/components';
 
 import {loadRuntime} from '@wonderlandengine/api';
+import * as API from '@wonderlandengine/api'; // Deprecated: Backward compatibility.
 
 /* wle:auto-constants:start */
 const RuntimeOptions = {
@@ -41,6 +42,8 @@ const Constants = {
 /* wle:auto-constants:end */
 
 const engine = await loadRuntime(Constants.RuntimeBaseName, RuntimeOptions);
+Object.assign(engine, API); // Deprecated: Backward compatibility.
+window.WL = engine; // Deprecated: Backward compatibility.
 
 engine.onSceneLoaded.once(() => {
     const el = document.getElementById('version');
