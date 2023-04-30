@@ -23,42 +23,56 @@ import {TestUIRoot} from './test-ui-root.js';
 //      aren't added yet
 import {CursorTarget} from '@wonderlandengine/components';
 
-import * as API from '@wonderlandengine/api'; // Deprecated: Backward compatibility.
 import {loadRuntime} from '@wonderlandengine/api';
 
 /* wle:auto-constants:start */
-const ProjectName = 'lazy-widgets-wle-example-project';
-const RuntimeBaseName = 'WonderlandRuntime';
-const WithPhysX = false;
-const WithLoader = false;
-const WebXRFramebufferScaleFactor = 1;
-const WebXRRequiredFeatures = ['local',];
-const WebXROptionalFeatures = ['local','hand-tracking','hit-test',];
+const RuntimeOptions = {
+    physx: false,
+    loader: false,
+    xrFramebufferScaleFactor: 1,
+    canvas: 'canvas',
+};
+const Constants = {
+    ProjectName: 'lazy-widgets-wle-example-project',
+    RuntimeBaseName: 'WonderlandRuntime',
+    WebXRRequiredFeatures: ['local',],
+    WebXROptionalFeatures: ['local','hand-tracking','hit-test',],
+};
 /* wle:auto-constants:end */
 
-const engine = await loadRuntime(RuntimeBaseName, {
-    physx: WithPhysX,
-    loader: WithLoader
-});
+const engine = await loadRuntime(Constants.RuntimeBaseName, RuntimeOptions);
 
-Object.assign(engine, API); // Deprecated: Backward compatibility.
-window.WL = engine; // Deprecated: Backward compatibility.
-
-engine.onSceneLoaded.add(() => {
+engine.onSceneLoaded.once(() => {
     const el = document.getElementById('version');
-    if(el) {
-        setTimeout(() => el.remove(), 2000);
-    }
+    if (el) setTimeout(() => el.remove(), 2000);
 });
 
-const arButton = document.getElementById('ar-button');
-if(arButton) {
-    arButton.dataset.supported = engine.arSupported;
+/* WebXR setup. */
+
+function requestSession(mode) {
+    engine
+        .requestXRSession(mode, Constants.WebXRRequiredFeatures, Constants.WebXROptionalFeatures)
+        .catch((e) => console.error(e));
 }
 
-const vrButton = document.getElementById('vr-button');
-if(vrButton) {
-    vrButton.dataset.supported = engine.vrSupported;
+function setupButtonsXR() {
+    /* Setup AR / VR buttons */
+    const arButton = document.getElementById('ar-button');
+    if (arButton) {
+        arButton.dataset.supported = engine.arSupported;
+        arButton.addEventListener('click', () => requestSession('immersive-ar'));
+    }
+    const vrButton = document.getElementById('vr-button');
+    if (vrButton) {
+        vrButton.dataset.supported = engine.vrSupported;
+        vrButton.addEventListener('click', () => requestSession('immersive-vr'));
+    }
+}
+
+if (document.readyState === 'loading') {
+    window.addEventListener('load', setupButtonsXR);
+} else {
+    setupButtonsXR();
 }
 
 /* wle:auto-register:start */
@@ -71,7 +85,7 @@ engine.registerComponent(TestUIRoot);
 /* wle:auto-register:end */
 engine.registerComponent(CursorTarget);
 
-engine.scene.load(`${ProjectName}.bin`);
+engine.scene.load(`${Constants.ProjectName}.bin`);
 
 /* wle:auto-benchmark:start */
 /* wle:auto-benchmark:end */

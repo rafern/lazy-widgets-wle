@@ -12,8 +12,8 @@
   "author": "rafern",
   "license": "CC0-1.0",
   "dependencies": {
-    "@wonderlandengine/api": "1.0.0-rc.5",
-    "@wonderlandengine/components": "file:../../../Contrib/components",
+    "@wonderlandengine/api": "1.0.0-rc.7",
+    "@wonderlandengine/components": "file:wonderlandengine-components-1.0.0-rc.8.tgz",
     "gl-matrix": "^3.4.3",
     "lazy-widgets-wle": "file:.."
   }
