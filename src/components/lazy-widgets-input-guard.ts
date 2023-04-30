@@ -1,5 +1,4 @@
-import { Component, Object as $Object } from '@wonderlandengine/api';
-import { property } from '@wonderlandengine/api/decorators.js';
+import { Component, Object as $Object, Property } from '@wonderlandengine/api';
 import { Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
 import { WLRoot } from '../core/WLRoot.js';
@@ -8,31 +7,26 @@ import { WLRoot } from '../core/WLRoot.js';
 
 export class CanvasUIInputGuardComponent extends Component {
     /** (optional) Name of component to disable if keyboard is in use */
-    @property.string()
     keyboardComponentName!: string;
     /**
      * (optional) Object containing component to disable if keyboard is in use.
      * Required if keyboardComponentName is set, else, ignored
      */
-    @property.object()
     keyboardObject!: $Object | null;
     /**
      * (optional) Name of component to disable if pointer is hovering a UI root
      * is in use
      */
-    @property.string()
     pointerComponentName!: string;
     /**
      * (optional) Object containing component to disable if pointer is hovering
      * a UI root. Required if pointerComponentName is set, else, ignored
      */
-    @property.object()
     pointerObject!: $Object | null;
     /**
      * (optional) Object which has a cursor component. Required if pointerObject
      * is set, else, ignored
      */
-    @property.object()
     cursorObject!: $Object | null;
 
     pointer!: number | null;
@@ -40,6 +34,13 @@ export class CanvasUIInputGuardComponent extends Component {
     keyboardComponent!: Component | null;
 
     static override TypeName = 'lazy-widgets-input-guard';
+    static override Properties = {
+        keyboardComponentName: Property.string(),
+        keyboardObject: Property.object(),
+        pointerComponentName: Property.string(),
+        pointerObject: Property.object(),
+        cursorObject: Property.object(),
+    };
 
     override init() {
         this.pointer = null;
