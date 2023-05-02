@@ -12,9 +12,9 @@
   "author": "rafern",
   "license": "CC0-1.0",
   "dependencies": {
-    "@wonderlandengine/api": "1.0.0-rc.8",
-    "@wonderlandengine/components": "file:wonderlandengine-components-1.0.0-rc.8.tgz",
+    "@wonderlandengine/api": "^1.0.0",
+    "@wonderlandengine/components": "github:WonderlandEngine/components",
     "gl-matrix": "^3.4.3",
-    "lazy-widgets-wle": "file:lazy-widgets-wle-0.3.0+wle-1.0.0-custom-build.tgz"
+    "lazy-widgets-wle": "file:.."
   }
 }
