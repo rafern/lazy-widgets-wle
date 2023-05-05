@@ -348,59 +348,40 @@ export class WLRoot extends Root {
                 this.boundTo.addEventListener('keyup', this.keyupEventListener);
 
                 this.unHoverFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    // if (!ev) {
-                    //     return;
-                    // }
-                    console.debug('unhover');
                     WLRoot.pointerDriver.leavePointer(
                         this, WLRoot.getPointerID(cursor)
                     );
                 };
 
                 this.moveFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    // if (!ev) {
-                    //     return;
-                    // }
-                    console.debug('move', ...getCursorPos(cursor));
                     WLRoot.pointerDriver.movePointer(
                         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), null, shift, ctrl, alt
                     );
                 };
 
                 this.downFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    // if (!ev) {
-                    //     return;
-                    // }
-                    console.debug('down', ...getCursorPos(cursor));
                     WLRoot.pointerDriver.movePointer(
                         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 1, shift, ctrl, alt
                     );
                 };
 
                 this.upFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    // if (!ev) {
-                    //     return;
-                    // }
-                    console.debug('up', ...getCursorPos(cursor));
                     WLRoot.pointerDriver.movePointer(
                         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 0, shift, ctrl, alt
                     );
                 };
 
-                // this.wheelFunction = (_, cursor: Cursor, ev?: EventTypes) => {
-                //     if (ev) {
-                //         console.debug('scroll', ev);
-                //         WLRoot.pointerDriver.wheelPointer(
-                //             this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
-                //         );
-                //     }
-                // };
+                this.wheelFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
+                    WLRoot.pointerDriver.wheelPointer(
+                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
+                    );
+                };
 
                 this.cursorTarget.onUnhover.add(this.unHoverFunction);
                 this.cursorTarget.onMove.add(this.moveFunction);
                 this.cursorTarget.onDown.add(this.downFunction);
                 this.cursorTarget.onUp.add(this.upFunction);
-                // this.cursorTarget.onScroll.add(this.wheelFunction);
+                this.cursorTarget.onScroll.add(this.wheelFunction);
             }
         }
 
