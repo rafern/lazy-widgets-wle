@@ -1,4 +1,4 @@
-import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup, PointerWheelMode } from 'lazy-widgets';
+import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup, /*PointerWheelMode*/ } from 'lazy-widgets';
 import { vec3, quat } from 'gl-matrix';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener.js';
 import { Texture, Collider, Mesh, MeshAttribute, MeshIndexType } from '@wonderlandengine/api';
@@ -184,8 +184,9 @@ export class WLRoot extends Root {
     private moveFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
     private downFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
     private upFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private wheelFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    // private wheelFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
     private boundTo: HTMLElement;
+    private lastWorldScale = new Float32Array(3);
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -300,7 +301,8 @@ export class WLRoot extends Root {
             const rot = new Float32Array(4);
             const meshObject = (this.meshObject as $Object);
             const getCursorPos = (cursor: Cursor): [number, number] => {
-                cursorPos.set(cursor.cursorPos);
+                // TODO remove custom fix for wle-pp
+                cursorPos.set((cursor as unknown as { _cursorPos: Float32Array })._cursorPos ?? cursor.cursorPos);
                 meshObject.getTranslationWorld(TMP_VEC);
                 vec3.sub(cursorPos, cursorPos, TMP_VEC);
                 // TODO getRotationWorld is broken, use rotationWorld for now
@@ -371,17 +373,17 @@ export class WLRoot extends Root {
                     );
                 };
 
-                this.wheelFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    WLRoot.pointerDriver.wheelPointer(
-                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
-                    );
-                };
+                // this.wheelFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
+                //     WLRoot.pointerDriver.wheelPointer(
+                //         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
+                //     );
+                // };
 
                 this.cursorTarget.onUnhover.add(this.unHoverFunction);
                 this.cursorTarget.onMove.add(this.moveFunction);
                 this.cursorTarget.onDown.add(this.downFunction);
                 this.cursorTarget.onUp.add(this.upFunction);
-                this.cursorTarget.onScroll.add(this.wheelFunction);
+                // this.cursorTarget.onScroll.add(this.wheelFunction);
             }
         }
 
@@ -415,15 +417,15 @@ export class WLRoot extends Root {
             const [width, height] = this.dimensions;
             const [scaleX, scaleY] = this.effectiveScale;
             meshObject.resetScaling();
-            meshObject.scaleLocal([
+            meshObject.setScalingLocal([
                 this.unitsPerPixel * width,
                 this.unitsPerPixel * height,
                 0.01,
             ]);
 
             if(this.collision !== null) {
-                meshObject.getScalingLocal(TMP_VEC);
-                this.collision.extents = [ TMP_VEC[0], TMP_VEC[1], 0.01 ];
+                meshObject.getScalingWorld(this.lastWorldScale);
+                this.collision.extents = [ this.lastWorldScale[0], this.lastWorldScale[1], 0.01 ];
             }
 
             let uBorder = 0, vBorder = 0;
@@ -438,6 +440,14 @@ export class WLRoot extends Root {
             const vSpan = scaleY * height / canvasHeight;
 
             this._setupMesh(uBorder, uBorder + uSpan, 1 - vBorder, 1 - vBorder - vSpan);
+        } else if(this.collision !== null) {
+            meshObject.getScalingWorld(TMP_VEC);
+            const diffSqr = Math.abs(TMP_VEC[0] - this.lastWorldScale[0]) + Math.abs(TMP_VEC[1] - this.lastWorldScale[1]);
+
+            if (diffSqr > 0.1) {
+                this.lastWorldScale.set(TMP_VEC);
+                this.collision.extents = [ TMP_VEC[0], TMP_VEC[1], 0.01 ];
+            }
         }
 
         // Update (post-layout)
