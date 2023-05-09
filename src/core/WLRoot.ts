@@ -312,12 +312,10 @@ export class WLRoot extends Root {
             const getCursorPos = (cursor: Cursor): [number, number] => {
                 // TODO remove custom fix for wle-pp
                 cursorPos.set((cursor as unknown as { _cursorPos: Float32Array })._cursorPos ?? cursor.cursorPos);
-                meshObject.getTranslationWorld(TMP_VEC);
+                meshObject.getPositionWorld(TMP_VEC);
                 vec3.sub(cursorPos, cursorPos, TMP_VEC);
-                // TODO getRotationWorld is broken, use rotationWorld for now
-                // meshObject.getRotationWorld(TMP_VEC);
-                // quat.invert(rot, TMP_VEC);
-                quat.invert(rot, meshObject.rotationWorld);
+                meshObject.getRotationWorld(TMP_VEC);
+                quat.invert(rot, TMP_VEC);
                 vec3.transformQuat(cursorPos, cursorPos, rot);
                 meshObject.getScalingWorld(TMP_VEC);
                 vec3.div(cursorPos, cursorPos, TMP_VEC);
