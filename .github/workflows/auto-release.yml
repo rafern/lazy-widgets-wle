@@ -92,9 +92,7 @@ jobs:
         with:
           name: project-build
       - run: tar -xf project-build.tar.gz example-project/
-      - run: mkdir docs/dist
-      - run: mv dist/index.esm.js docs/dist/index.esm.js
-      - run: mv dist/index.esm.js.map docs/dist/index.esm.js.map
+      - run: mv dist docs/dist
       - run: mv example-project/deploy docs/example-project
       - uses: actions/upload-pages-artifact@v1
         with:
