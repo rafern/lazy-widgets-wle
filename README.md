@@ -19,11 +19,19 @@ Note that there is no API in Wonderland Engine to get information about a
 pipeline or shader. This means that there is no way for this library to know
 which field should be set for a material's texture (is it `diffuseTexture` or
 `flatTexture`, or another field name?). Because of this, this library tries to
-guess which field should be set by looking at the name of the shader. Only the
+guess which field should be set by looking at the name of the shader. The
 following names are supported at the moment:
 - `Flat Opaque Textured`
-- `Flat Transparent Textured`
 - `Phong Opaque Textured`
+- `Physical Opaque Textured`
+- `Flat Transparent Textured`
+- `Phong Transparent Textured`
+- `Physical Transparent Textured`
+- `Phong Normalmapped`
+- `Phong Lightmapped`
+
+If a custom pipeline is used, the texture uniform name can also be set with the
+`textureUniformName` WLRoot property.
 
 ## Documentation
 
