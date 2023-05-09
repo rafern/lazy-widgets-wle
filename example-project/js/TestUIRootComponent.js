@@ -1,5 +1,5 @@
 import { Label, Margin, Column, Row, TextInput, TextButton, Alignment, FlexAlignment, ValidatedVariable, Background, RoundedCorners, ScrollableViewportWidget, AxisCoupling } from 'lazy-widgets';
-import { BaseLazyWidgetsComponent } from '../../dist/index.js';
+import { BaseLazyWidgetsComponent } from 'lazy-widgets-wle';
 
 export class TestUIRootComponent extends BaseLazyWidgetsComponent {
     static TypeName = 'test-ui-root';
