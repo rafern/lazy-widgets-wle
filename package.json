@@ -7,7 +7,7 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
-  "packageManager": "pnpm@8.1.0",
+  "packageManager": "npm@8.19.2",
   "scripts": {
     "lint": "eslint src/ --ext .ts",
     "lint-fix": "eslint src/ --ext .ts --fix",
