@@ -62,13 +62,12 @@ This project uses the following open-source projects:
 - [@typescript-eslint/parser](https://github.com/typescript-eslint/typescript-eslint) licensed under the BSD 2-Clause license
 - [@wonderlandengine/api](https://www.npmjs.com/package/@wonderlandengine/api) licensed under the MIT license
 - [@wonderlandengine/components](https://www.npmjs.com/package/@wonderlandengine/components) licensed under the MIT license
-- [esbuild](https://github.com/evanw/esbuild) licensed under the MIT license
 - [eslint](https://github.com/eslint/eslint) licensed under the MIT license
 - [eslint-plugin-tsdoc](https://github.com/microsoft/tsdoc) licensed under the MIT license
 - [gl-matrix](https://github.com/toji/gl-matrix) licensed under the MIT license
 - [lazy-widgets](https://github.com/rafern/lazy-widgets) licensed under the MIT license
-- [rimraf](https://github.com/isaacs/rimraf) licensed under the ISC license
+- [shx](https://github.com/shelljs/shx#readme) licensed under the MIT license
+- [tslib](https://github.com/Microsoft/tslib) licensed under the BSD Zero Clause License
 - [typedoc](https://github.com/TypeStrong/TypeDoc) licensed under the Apache 2.0 license
 - [typedoc-plugin-external-resolver](https://github.com/rafern/typedoc-plugin-external-resolver) licensed under the MIT license
 - [typescript](https://github.com/Microsoft/TypeScript) licensed under the Apache 2.0 license
-- [tslib](https://github.com/Microsoft/tslib) licensed under the BSD Zero Clause License
