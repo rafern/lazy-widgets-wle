@@ -149,7 +149,7 @@
                 {
                     "type": "light",
                     "light": {
-                        "attenuation": 0.1
+                        "intensity": 3.3329999
                     }
                 }
             ],
@@ -176,7 +176,7 @@
                 {
                     "type": "light",
                     "light": {
-                        "attenuation": 0.1
+                        "intensity": 3.3329999
                     }
                 }
             ],
@@ -259,7 +259,10 @@
                 {
                     "type": "test-ui-root",
                     "test-ui-root": {
-                        "material": "59"
+                        "material": "59",
+                        "registerKeyboardDriver": true,
+                        "collisionGroup": 1,
+                        "cloneMaterial": true
                     }
                 }
             ],
@@ -281,7 +284,8 @@
                 {
                     "type": "virtual-keyboard-ui-root",
                     "virtual-keyboard-ui-root": {
-                        "material": "59"
+                        "material": "59",
+                        "cloneMaterial": true
                     }
                 }
             ],
@@ -431,6 +435,35 @@
                 0.0049998,
                 0.5,
                 0.0049998
+            ]
+        },
+        "69": {
+            "name": "XMLUI",
+            "components": [
+                {
+                    "type": "basic-xml-ui-root",
+                    "basic-xml-ui-root": {
+                        "material": "59",
+                        "xmlUrl": "ui.xml",
+                        "unitsPerPixel": 0.0049999
+                    }
+                }
+            ],
+            "translation": [
+                -0.4999998,
+                1.7999999,
+                -1.4999996
+            ],
+            "rotation": [
+                0.0,
+                -0.3826834,
+                0.0,
+                0.9238795
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
             ]
         }
     },
@@ -710,8 +743,7 @@
             "version": [
                 1,
                 0,
-                0,
-                2
+                0
             ]
         },
         "vr": {
@@ -759,18 +791,27 @@
             "link": {
                 "name": "Phong Opaque",
                 "file": "default"
+            },
+            "features": {
+                "DEPRECATED_LIGHT_ATTENUATION": true
             }
         },
         "38": {
             "link": {
                 "name": "Phong Opaque Textured",
                 "file": "default"
+            },
+            "features": {
+                "DEPRECATED_LIGHT_ATTENUATION": true
             }
         },
         "40": {
             "link": {
                 "name": "Foliage",
                 "file": "default"
+            },
+            "features": {
+                "DEPRECATED_LIGHT_ATTENUATION": true
             }
         },
         "41": {
@@ -813,12 +854,18 @@
             "link": {
                 "name": "Phong Normalmapped",
                 "file": "default"
+            },
+            "features": {
+                "DEPRECATED_LIGHT_ATTENUATION": true
             }
         },
         "57": {
             "link": {
                 "name": "Phong Lightmapped",
                 "file": "default"
+            },
+            "features": {
+                "DEPRECATED_LIGHT_ATTENUATION": true
             }
         },
         "61": {
@@ -829,7 +876,8 @@
             "name": "Flat Transparent Textured",
             "blending": true,
             "blendDestRgb": "one minus source alpha",
-            "blendDestAlpha": "one minus source alpha"
+            "blendDestAlpha": "one minus source alpha",
+            "sampleAlphaToCoverage": true
         }
     },
     "textures": {},

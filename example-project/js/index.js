@@ -15,16 +15,14 @@
 import {Cursor} from '@wonderlandengine/components';
 import {MouseLookComponent} from '@wonderlandengine/components';
 import {WasdControlsComponent} from '@wonderlandengine/components';
-import {CanvasUIInputGuardComponent} from 'lazy-widgets-wle';
+import {BasicXMLUIRootComponent} from 'lazy-widgets-wle';
+import {LazyWidgetsInputGuardComponent} from 'lazy-widgets-wle';
 import {VirtualKeyboardUIRootComponent} from 'lazy-widgets-wle';
-import {TestUIRoot} from './test-ui-root.js';
+import {TestUIRootComponent} from './TestUIRootComponent.js';
 /* wle:auto-imports:end */
-// HACK need to manually import CursorTarget because Component Dependencies
-//      aren't added yet
 import {CursorTarget} from '@wonderlandengine/components';
 
 import {loadRuntime} from '@wonderlandengine/api';
-import * as API from '@wonderlandengine/api'; // Deprecated: Backward compatibility.
 
 /* wle:auto-constants:start */
 const RuntimeOptions = {
@@ -42,8 +40,6 @@ const Constants = {
 /* wle:auto-constants:end */
 
 const engine = await loadRuntime(Constants.RuntimeBaseName, RuntimeOptions);
-Object.assign(engine, API); // Deprecated: Backward compatibility.
-window.WL = engine; // Deprecated: Backward compatibility.
 
 engine.onSceneLoaded.once(() => {
     const el = document.getElementById('version');
@@ -82,9 +78,10 @@ if (document.readyState === 'loading') {
 engine.registerComponent(Cursor);
 engine.registerComponent(MouseLookComponent);
 engine.registerComponent(WasdControlsComponent);
-engine.registerComponent(CanvasUIInputGuardComponent);
+engine.registerComponent(BasicXMLUIRootComponent);
+engine.registerComponent(LazyWidgetsInputGuardComponent);
 engine.registerComponent(VirtualKeyboardUIRootComponent);
-engine.registerComponent(TestUIRoot);
+engine.registerComponent(TestUIRootComponent);
 /* wle:auto-register:end */
 engine.registerComponent(CursorTarget);
 

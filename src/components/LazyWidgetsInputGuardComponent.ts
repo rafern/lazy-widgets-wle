@@ -5,7 +5,7 @@ import { WLRoot } from '../core/WLRoot.js';
 
 // TODO use decorators
 
-export class CanvasUIInputGuardComponent extends Component {
+export class LazyWidgetsInputGuardComponent extends Component {
     /** (optional) Name of component to disable if keyboard is in use */
     keyboardComponentName!: string;
     /**

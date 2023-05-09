@@ -7,6 +7,7 @@ import { CursorTarget, EventTypes } from '@wonderlandengine/components';
 import type { Widget, RootProperties } from 'lazy-widgets';
 import type { Cursor } from '@wonderlandengine/components';
 import type { Material, MeshComponent, CollisionComponent, Object as $Object, WonderlandEngine } from '@wonderlandengine/api';
+import { BaseLazyWidgetsComponent } from '../components/BaseLazyWidgetsComponent.js';
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
@@ -200,7 +201,7 @@ export class WLRoot extends Root {
             },
             preventBleeding: true,
             preventAtlasBleeding: true,
-            cloneMaterial: true,
+            cloneMaterial: BaseLazyWidgetsComponent.Properties.cloneMaterial.default,
             // Wonderland engine has much stricter texture limits because of the
             // texture atlas system. Limit canvas to 2048x2048 by default
             maxCanvasWidth: 2048,
@@ -213,11 +214,19 @@ export class WLRoot extends Root {
         this.boundTo = WLRoot.getBindableElement(wlObject.engine);
         addPasteEventListener(this.boundTo, this);
 
-        const collisionGroup = properties.collisionGroup ?? 1;
-        const registerPointerDriver = properties.registerPointerDriver ?? true;
-        const registerKeyboardDriver = properties.registerKeyboardDriver ?? true;
-        this.unitsPerPixel = properties.unitsPerPixel ?? 0.01;
+        let collisionGroup = properties.collisionGroup ?? BaseLazyWidgetsComponent.Properties.collisionGroup.default;
+        if (collisionGroup < 0) {
+            collisionGroup = null;
+        }
+
+        const registerPointerDriver = properties.registerPointerDriver ?? BaseLazyWidgetsComponent.Properties.registerPointerDriver.default;
+        const registerKeyboardDriver = properties.registerKeyboardDriver ?? BaseLazyWidgetsComponent.Properties.registerKeyboardDriver.default;
+        this.unitsPerPixel = properties.unitsPerPixel ?? BaseLazyWidgetsComponent.Properties.unitsPerPixel.default;
         this.textureUniformName = properties.textureUniformName;
+
+        if (this.textureUniformName === '') {
+            this.textureUniformName = undefined;
+        }
 
         const engine = wlObject.engine;
 
@@ -445,7 +454,10 @@ export class WLRoot extends Root {
             const diffSqr = Math.abs(TMP_VEC[0] - this.lastWorldScale[0]) + Math.abs(TMP_VEC[1] - this.lastWorldScale[1]);
 
             if (diffSqr > 0.1) {
-                this.lastWorldScale.set(TMP_VEC);
+                // XXX can't use .set since TMP_VEC is a vec4, not a vec3
+                this.lastWorldScale[0] = TMP_VEC[0];
+                this.lastWorldScale[1] = TMP_VEC[1];
+                this.lastWorldScale[2] = TMP_VEC[2];
                 this.collision.extents = [ TMP_VEC[0], TMP_VEC[1], 0.01 ];
             }
         }

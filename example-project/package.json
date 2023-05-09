@@ -13,7 +13,7 @@
   "license": "CC0-1.0",
   "dependencies": {
     "@wonderlandengine/api": "^1.0.0",
-    "@wonderlandengine/components": "github:WonderlandEngine/components",
+    "@wonderlandengine/components": "^1.0.3",
     "gl-matrix": "^3.4.3",
     "lazy-widgets-wle": "file:.."
   }
