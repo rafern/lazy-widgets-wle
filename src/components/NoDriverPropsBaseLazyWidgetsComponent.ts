@@ -3,7 +3,7 @@ import { CursorTarget } from '@wonderlandengine/components';
 import { makeLWWLEErrMsg } from '../core/makeLWWLEErrMsg';
 import { WLRoot } from '../core/WLRoot';
 
-import type { Material, WonderlandEngine } from '@wonderlandengine/api';
+import type { Material, WonderlandEngine, Object3D } from '@wonderlandengine/api';
 import type { Widget } from 'lazy-widgets';
 import type { WLRootProperties } from '../core/WLRoot';
 
@@ -21,6 +21,8 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
         collisionGroup: Property.int(1),
         cloneMaterial: Property.bool(true),
         textureUniformName: Property.string(),
+        cursorStyleManagerObject: Property.object(),
+        cursorStyleManagerName: Property.string('cursor-style-manager'),
     };
 
     /** Material to apply the canvas texture to */
@@ -47,6 +49,10 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      * which will result in an error when an unknown pipeline is used.
      */
     textureUniformName!: string;
+    /** Object with cursor style manager */
+    cursorStyleManagerObject!: Object3D | null;
+    /** Component name for cursor style manager */
+    cursorStyleManagerName!: string;
 
     /**
      * The lazy-widgets UI root.
@@ -171,6 +177,7 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
             collisionGroup: this.collisionGroup,
             cloneMaterial: this.cloneMaterial,
             textureUniformName: this.textureUniformName,
+            cursorStyleManager: this.cursorStyleManagerObject?.getComponent(this.cursorStyleManagerName),
         } as WLRootPropertiesType;
     }
 

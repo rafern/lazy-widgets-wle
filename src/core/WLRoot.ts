@@ -3,11 +3,12 @@ import { vec3, quat } from 'gl-matrix';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener.js';
 import { Texture, Collider, Mesh, MeshAttribute, MeshIndexType } from '@wonderlandengine/api';
 import { CursorTarget, EventTypes } from '@wonderlandengine/components';
+import { BaseLazyWidgetsComponent } from '../components/BaseLazyWidgetsComponent.js';
 
 import type { Widget, RootProperties } from 'lazy-widgets';
 import type { Cursor } from '@wonderlandengine/components';
 import type { Material, MeshComponent, CollisionComponent, Object as $Object, WonderlandEngine } from '@wonderlandengine/api';
-import { BaseLazyWidgetsComponent } from '../components/BaseLazyWidgetsComponent.js';
+import type { ICursorStyleManager } from 'cursor-style-manager-wle';
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
@@ -67,6 +68,16 @@ export interface WLRootProperties extends RootProperties {
      * which will result in an error when an unknown pipeline is used.
      */
     textureUniformName?: string,
+    /**
+     * A cursor style manager for sharing the cursor style with other components
+     * without having a glitchy cursor style. If omitted and the pointer style
+     * handler is not overridden, then the cursor style is set directly.
+     *
+     * Even if the pointerStyleHandler is overridden, this should still be
+     * passed if it's available, so that the root can clear the pointer style
+     * when it's disabled.
+     */
+    cursorStyleManager?: ICursorStyleManager | null,
 }
 
 /**
@@ -85,14 +96,6 @@ export interface WLRootProperties extends RootProperties {
  * be used.
  */
 export class WLRoot extends Root {
-    /**
-     * Get an HTML element that we can bind a KeyboardDriver to, or change the
-     * pointer style in. Returns canvas, with a fallback to the HTML body.
-     */
-    static getBindableElement(engine: WonderlandEngine): HTMLElement {
-        return engine.canvas ?? document.body;
-    }
-
     /**
      * The shared PointerDriver instance. Getter only. The PointerDriver will
      * only be created when needed. Used for pointer (mouse & XR controller)
@@ -115,7 +118,7 @@ export class WLRoot extends Root {
         let keyboardDriverGroup = keyboardDriverGroups.get(engine);
         if (keyboardDriverGroup === undefined) {
             keyboardDriverGroup = WLRoot.keyboardDriver.createGroup({
-                domElem: WLRoot.getBindableElement(engine),
+                domElem: engine.canvas,
                 wrapsAround: true
             });
 
@@ -188,6 +191,7 @@ export class WLRoot extends Root {
     // private wheelFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
     private boundTo: HTMLElement;
     private lastWorldScale = new Float32Array(3);
+    private cursorStyleManager: ICursorStyleManager | null;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -195,9 +199,15 @@ export class WLRoot extends Root {
      * @param child - The root's child widget.
      */
     constructor(private wlObject: $Object, material: Material, child: Widget, properties?: WLRootProperties) {
+        const cursorStyleManager = properties?.cursorStyleManager ?? null;
+
         properties = {
             pointerStyleHandler: style => {
-                this.boundTo.style.cursor = style;
+                if (cursorStyleManager) {
+                    cursorStyleManager.setStyle(this, style);
+                } else {
+                    this.boundTo.style.cursor = style;
+                }
             },
             preventBleeding: true,
             preventAtlasBleeding: true,
@@ -211,7 +221,8 @@ export class WLRoot extends Root {
 
         super(child, properties);
 
-        this.boundTo = WLRoot.getBindableElement(wlObject.engine);
+        this.cursorStyleManager = cursorStyleManager;
+        this.boundTo = wlObject.engine.canvas;
         addPasteEventListener(this.boundTo, this);
 
         let collisionGroup = properties.collisionGroup ?? BaseLazyWidgetsComponent.Properties.collisionGroup.default;
@@ -360,6 +371,10 @@ export class WLRoot extends Root {
                     WLRoot.pointerDriver.leavePointer(
                         this, WLRoot.getPointerID(cursor)
                     );
+
+                    if (this.cursorStyleManager) {
+                        this.cursorStyleManager.clearStyle(this);
+                    }
                 };
 
                 this.moveFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
@@ -504,10 +519,16 @@ export class WLRoot extends Root {
     }
 
     override set enabled(enabled: boolean) {
-        super.enabled = enabled;
+        if (this._enabled !== enabled) {
+            super.enabled = enabled;
 
-        if(this.paintedOnce) {
-            (this.meshObject as $Object).active = this.enabled;
+            if(this.paintedOnce) {
+                (this.meshObject as $Object).active = this.enabled;
+            }
+
+            if (this.cursorStyleManager && !enabled) {
+                this.cursorStyleManager.clearStyle(this);
+            }
         }
     }
 

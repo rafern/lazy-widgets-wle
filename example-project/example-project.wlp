@@ -14,7 +14,7 @@
                     "lazy-widgets-input-guard": {
                         "keyboardComponentName": "wasd-controls",
                         "keyboardObject": "14",
-                        "pointerComponentName": "mouse-look",
+                        "pointerComponentName": "csm-mouse-look",
                         "pointerObject": "17",
                         "cursorObject": "17"
                     }
@@ -101,14 +101,16 @@
                     "type": "view"
                 },
                 {
-                    "type": "mouse-look"
+                    "type": "csm-mouse-look",
+                    "csm-mouse-look": {
+                        "cursorStyleManagerObject": "71"
+                    }
                 },
                 {
                     "type": "cursor",
                     "cursor": {
-                        "styleCursor": false,
                         "handedness": "none",
-                        "emulateXRScroll": false
+                        "styleCursor": false
                     }
                 }
             ]
@@ -262,7 +264,9 @@
                         "material": "59",
                         "registerKeyboardDriver": true,
                         "collisionGroup": 1,
-                        "cloneMaterial": true
+                        "cloneMaterial": true,
+                        "cursorObject": "17",
+                        "cursorStyleManagerObject": "71"
                     }
                 }
             ],
@@ -285,7 +289,8 @@
                     "type": "virtual-keyboard-ui-root",
                     "virtual-keyboard-ui-root": {
                         "material": "59",
-                        "cloneMaterial": true
+                        "cloneMaterial": true,
+                        "cursorStyleManagerObject": "71"
                     }
                 }
             ],
@@ -445,7 +450,8 @@
                     "basic-xml-ui-root": {
                         "material": "59",
                         "xmlUrl": "ui.xml",
-                        "unitsPerPixel": 0.0049999
+                        "unitsPerPixel": 0.0049999,
+                        "cursorStyleManagerObject": "71"
                     }
                 }
             ],
@@ -464,6 +470,14 @@
                 1.0,
                 1.0,
                 1.0
+            ]
+        },
+        "71": {
+            "name": "CursorStyleManager",
+            "components": [
+                {
+                    "type": "cursor-style-manager"
+                }
             ]
         }
     },
@@ -743,7 +757,7 @@
             "version": [
                 1,
                 0,
-                0
+                1
             ]
         },
         "vr": {

@@ -1,7 +1,8 @@
 import { Component, Object as $Object, Property } from '@wonderlandengine/api';
-import { Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
 import { WLRoot } from '../core/WLRoot.js';
+
+import type { Cursor } from '@wonderlandengine/components';
 
 // TODO use decorators
 
@@ -28,6 +29,11 @@ export class LazyWidgetsInputGuardComponent extends Component {
      * is set, else, ignored
      */
     cursorObject!: $Object | null;
+    /**
+     * (optional) Name of cursor component. Shouldn't be changed if the official
+     * cursor component is being used
+     */
+    cursorComponentName!: string;
 
     pointer!: number | null;
     pointerComponent!: Component | null;
@@ -39,6 +45,7 @@ export class LazyWidgetsInputGuardComponent extends Component {
         keyboardObject: Property.object(),
         pointerComponentName: Property.string(),
         pointerObject: Property.object(),
+        cursorComponentName: Property.string('cursor'),
         cursorObject: Property.object(),
     };
 
@@ -51,40 +58,62 @@ export class LazyWidgetsInputGuardComponent extends Component {
     override start() {
         if(this.keyboardComponentName !== '') {
             if(this.keyboardObject !== null) {
-                const keyboardComponent = this.keyboardObject.getComponent(this.keyboardComponentName, 0);
-                if(keyboardComponent === null) {
-                    console.warn('keyboardObject has no component with name', this.keyboardComponentName);
+                const keyboardComponents = this.keyboardObject.getComponents(this.keyboardComponentName);
+                if(keyboardComponents.length === 0) {
+                    this.warnComponentMissing('keyboardObject', this.keyboardComponentName);
                 } else {
-                    this.keyboardComponent = keyboardComponent;
+                    if (keyboardComponents.length !== 1) {
+                        this.warnComponentClash('keyboardObject', this.keyboardComponentName);
+                    }
+
+                    this.keyboardComponent = keyboardComponents[0];
                 }
             } else {
-                console.warn('keyboardComponentName set in lazy-widgets-keyboard-guard, but keyboardObject was not');
+                this.warnObjectNotSet('keyboardObject', 'keyboardComponentName');
             }
         }
 
         if(this.pointerComponentName !== '') {
             if(this.pointerObject !== null) {
-                const pointerComponent = this.pointerObject.getComponent(this.pointerComponentName, 0);
-                if(pointerComponent === null) {
-                    console.warn('pointerObject has no component with name', this.pointerComponentName);
+                const pointerComponents = this.pointerObject.getComponents(this.pointerComponentName);
+                if(pointerComponents.length === 0) {
+                    this.warnComponentMissing('pointerObject', this.pointerComponentName);
                     return;
+                } else if (pointerComponents.length !== 1) {
+                    this.warnComponentClash('pointerObject', this.pointerComponentName);
                 }
 
                 if(this.cursorObject !== null) {
-                    const cursor = this.cursorObject.getComponent(Cursor, 0);
-                    if(cursor === null) {
-                        console.warn('cursorObject set in lazy-widgets-keyboard-guard, but cursorObject has no cursor component');
+                    const cursors: Array<Cursor> = this.cursorObject.getComponents(this.cursorComponentName);
+                    if(cursors.length === 0) {
+                        this.warnComponentMissing('cursorObject', this.cursorComponentName);
                     } else {
-                        this.pointer = WLRoot.getPointerID(cursor);
-                        this.pointerComponent = pointerComponent;
+                        if (cursors.length !== 1) {
+                            this.warnComponentClash('cursorObject', this.cursorComponentName);
+                        }
+
+                        this.pointer = WLRoot.getPointerID(cursors[0]);
+                        this.pointerComponent = pointerComponents[0];
                     }
                 } else {
-                    console.warn('pointerObject set in lazy-widgets-keyboard-guard, but cursorObject was not');
+                    console.warn(`Object in ${this.type} property "cursorObject" was not set, but the object property "pointerObject" was. Both need to be set. Did you forget to set the "cursorObject" property?`);
                 }
             } else {
-                console.warn('pointerComponentName set in lazy-widgets-keyboard-guard, but pointerObject was not');
+                this.warnObjectNotSet('pointerObject', 'pointerComponentName');
             }
         }
+    }
+
+    private warnObjectNotSet(objectPropName: string, componentPropName: string): void {
+        console.warn(`Object in ${this.type} property "${objectPropName}" was not set, but the component name property "${componentPropName}" was. Did you forget to set the object?`);
+    }
+
+    private warnComponentMissing(objectPropName: string, componentName: string): void {
+        console.warn(`Object in ${this.type} property "${objectPropName}" has no "${componentName}" component. Is the wrong object being used?`);
+    }
+
+    private warnComponentClash(objectPropName: string, componentName: string): void {
+        console.warn(`Object in ${this.type} property "${objectPropName}" has multiple "${componentName}" components. First one will be used, which might be the wrong one. To fix this issue, split the components into multiple objects`);
     }
 
     override update(_dt: number) {
