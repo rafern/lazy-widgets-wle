@@ -21,6 +21,7 @@ const keyboardDriverGroups = new WeakMap<WonderlandEngine, DOMKeyboardDriverGrou
 let pointerIDs: Map<Cursor, number> | null = null;
 
 const TMP_VEC = new Float32Array(4);
+const TMP_VEC_2 = new Float32Array(3);
 
 const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
     ['Flat Opaque Textured', 'flatTexture'],
@@ -321,8 +322,7 @@ export class WLRoot extends Root {
             const rot = new Float32Array(4);
             const meshObject = (this.meshObject as $Object);
             const getCursorPos = (cursor: Cursor): [number, number] => {
-                // TODO remove custom fix for wle-pp
-                cursorPos.set((cursor as unknown as { _cursorPos: Float32Array })._cursorPos ?? cursor.cursorPos);
+                cursorPos.set(cursor.cursorPos);
                 meshObject.getPositionWorld(TMP_VEC);
                 vec3.sub(cursorPos, cursorPos, TMP_VEC);
                 meshObject.getRotationWorld(TMP_VEC);
@@ -378,27 +378,35 @@ export class WLRoot extends Root {
                 };
 
                 this.moveFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    WLRoot.pointerDriver.movePointer(
-                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), null, shift, ctrl, alt
-                    );
+                    if (this._testRayDirection(cursor)) {
+                        WLRoot.pointerDriver.movePointer(
+                            this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), null, shift, ctrl, alt
+                        );
+                    }
                 };
 
                 this.downFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    WLRoot.pointerDriver.movePointer(
-                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 1, shift, ctrl, alt
-                    );
+                    if (this._testRayDirection(cursor)) {
+                        WLRoot.pointerDriver.movePointer(
+                            this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 1, shift, ctrl, alt
+                        );
+                    }
                 };
 
                 this.upFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    WLRoot.pointerDriver.movePointer(
-                        this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 0, shift, ctrl, alt
-                    );
+                    if (this._testRayDirection(cursor)) {
+                        WLRoot.pointerDriver.movePointer(
+                            this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 0, shift, ctrl, alt
+                        );
+                    }
                 };
 
                 // this.wheelFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                //     WLRoot.pointerDriver.wheelPointer(
-                //         this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
-                //     );
+                //     if (this._testRayDirection(cursor)) {
+                //         WLRoot.pointerDriver.wheelPointer(
+                //             this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), cursor.scrollDeltaX, cursor.scrollDeltaY, 0, PointerWheelMode.Pixel, shift, ctrl, alt
+                //         );
+                //     }
                 // };
 
                 this.cursorTarget.onUnhover.add(this.unHoverFunction);
@@ -585,6 +593,17 @@ export class WLRoot extends Root {
         }
 
         this.mesh = newMesh;
+    }
+
+    private _testRayDirection(cursor: Cursor): boolean {
+        if (this.meshObject) {
+            cursor.object.getPositionWorld(TMP_VEC);
+            vec3.sub(TMP_VEC, TMP_VEC, cursor.cursorPos);
+            this.meshObject.getForwardWorld(TMP_VEC_2);
+            return vec3.dot(TMP_VEC, TMP_VEC_2) < 0;
+        } else {
+            return false;
+        }
     }
 
     override destroy(): void {
