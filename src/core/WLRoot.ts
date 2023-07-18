@@ -74,6 +74,12 @@ export interface WLRootProperties extends RootProperties {
      * when it's disabled.
      */
     cursorStyleManager?: ICursorStyleManager | null,
+    /**
+     * When true, the UI texture will be destroyed to clear up space in the
+     * texture atlas whenever the UI root is disabled. Note that this will cause
+     * additional texture updates when re-enabling the UI root.
+     */
+    destroyTextureWhenDisabled?: boolean,
 }
 
 /**
@@ -118,6 +124,10 @@ export class WLRoot extends Root {
      * due to the texture atlas system.
      */
     static readonly defaultMaxCanvasHeight = 2048;
+    /**
+     * Should the UI texture be destroyed by default when the root is disabled?
+     */
+    static readonly defaultDestroyTextureWhenDisabled = false;
 
     /**
      * The shared PointerDriver instance. Getter only. The PointerDriver will
@@ -193,16 +203,16 @@ export class WLRoot extends Root {
     }
 
     unitsPerPixel: number;
-    texture: Texture | null = null;
-    meshObject: Object3D | null;
-    mesh: Mesh | null = null;
-    meshComponent: MeshComponent | null;
-    materialClone: Material;
+    protected texture: Texture | null = null;
+    protected meshObject: Object3D | null;
+    protected mesh: Mesh | null = null;
+    protected meshComponent: MeshComponent | null;
+    protected materialClone: Material;
     textureUniformName?: string;
-    oldTexSize: [number, number] = [0, 0];
-    collision: CollisionComponent | null = null;
-    cursorTarget: CursorTarget | null = null;
-
+    protected oldTexSize: [number, number] = [0, 0];
+    protected collision: CollisionComponent | null = null;
+    protected cursorTarget: CursorTarget | null = null;
+    destroyTextureWhenDisabled: boolean;
     protected valid = false;
     protected paintedOnce = false;
     private keydownEventListener: ((event: KeyboardEvent) => void) | null = null;
@@ -215,6 +225,7 @@ export class WLRoot extends Root {
     private boundTo: HTMLElement;
     private lastWorldScale = new Float32Array(3);
     private cursorStyleManager: ICursorStyleManager | null;
+    private lastUnitsPerPixel: number;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -242,6 +253,7 @@ export class WLRoot extends Root {
 
         super(child, properties);
 
+        this.destroyTextureWhenDisabled = properties.destroyTextureWhenDisabled ?? WLRoot.defaultDestroyTextureWhenDisabled;
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
         addPasteEventListener(this.boundTo, this);
@@ -254,6 +266,7 @@ export class WLRoot extends Root {
         const registerPointerDriver = properties.registerPointerDriver ?? WLRoot.defaultRegisterPointerDriver;
         const registerKeyboardDriver = properties.registerKeyboardDriver ?? WLRoot.defaultRegisterKeyboardDriver;
         this.unitsPerPixel = properties.unitsPerPixel ?? WLRoot.defaultUnitsPerPixel;
+        this.lastUnitsPerPixel = this.unitsPerPixel;
         this.textureUniformName = properties.textureUniformName;
 
         if (this.textureUniformName === '') {
@@ -460,7 +473,7 @@ export class WLRoot extends Root {
         // Resolve layout
         const layoutDirty = this.resolveLayout();
         const [canvasWidth, canvasHeight] = this.canvasDimensions;
-        if(layoutDirty) {
+        if(layoutDirty || this.lastUnitsPerPixel !== this.unitsPerPixel) {
             //console.log("Root's layout was dirty, resizing");
             // Resize and update UV if layout was dirty so that UI is not
             // stretched
@@ -472,6 +485,7 @@ export class WLRoot extends Root {
                 this.unitsPerPixel * height,
                 0.01,
             ]);
+            this.lastUnitsPerPixel = this.unitsPerPixel;
 
             if(this.collision !== null) {
                 meshObject.getScalingWorld(this.lastWorldScale);
@@ -579,6 +593,10 @@ export class WLRoot extends Root {
 
             if (this.cursorStyleManager && !enabled) {
                 this.cursorStyleManager.clearStyle(this);
+            }
+
+            if (this.destroyTextureWhenDisabled && !enabled) {
+                this.destroyTexture();
             }
         }
     }
@@ -691,10 +709,7 @@ export class WLRoot extends Root {
         }
 
         // destroy WLE objects
-        if(this.texture) {
-            this.texture.destroy();
-            this.texture = null;
-        }
+        this.destroyTexture();
 
         if(this.collision) {
             this.collision.destroy();
@@ -725,5 +740,25 @@ export class WLRoot extends Root {
         this.valid = false;
         this.paintedOnce = false;
         super.destroy();
+    }
+
+    /**
+     * Destroy the texture used by this UI root, or do nothing if there is no
+     * texture created. The UI root will still be usable after calling this, as
+     * the texture is auto-created when needed.
+     *
+     * Use this if you want to save atlas space for a disabled UI root. If this
+     * is your use-case, and the UI root is not frequently toggled, consider
+     * using the {@link WLRoot#destroyTextureWhenDisabled} option.
+     */
+    destroyTexture() {
+        if (!this.texture) {
+            return;
+        }
+
+        this.oldTexSize[0] = 0;
+        this.oldTexSize[1] = 0;
+        this.texture.destroy();
+        this.texture = null;
     }
 }

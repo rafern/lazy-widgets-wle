@@ -70,6 +70,13 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      */
     @property.int(WLRoot.defaultMaxCanvasHeight)
     maxCanvasHeight!: number;
+    /**
+     * When true, the UI texture will be destroyed to clear up space in the
+     * texture atlas whenever the UI root is disabled. Note that this will cause
+     * additional texture updates when re-enabling the UI root.
+     */
+    @property.bool(WLRoot.defaultDestroyTextureWhenDisabled)
+    destroyTextureWhenDisabled!: boolean;
 
     /**
      * The lazy-widgets UI root.
@@ -215,6 +222,7 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
             preventAtlasBleeding: this.preventAtlasBleeding,
             maxCanvasWidth: this.maxCanvasWidth,
             maxCanvasHeight: this.maxCanvasHeight,
+            destroyTextureWhenDisabled: this.destroyTextureWhenDisabled,
         } as WLRootPropertiesType;
     }
 
