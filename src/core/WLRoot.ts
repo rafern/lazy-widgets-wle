@@ -540,8 +540,29 @@ export class WLRoot extends Root {
             }
         } else if(this.texture) {
             //console.log('Root was dirty, updating texture');
-            for (const dirtyRect of dirtyRects) {
-                this.texture.updateSubImage(...dirtyRect);
+            if (dirtyRects.length > 3) {
+                // XXX we want to avoid a scenario where there are many small
+                //     updates to the texture, which makes overall texture
+                //     updating slower due to the overhead of updateSubImage. if
+                //     there too many dirty rectangles, then merge all of them
+                //     into a single large dirty rectangle
+                let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+                for (const dirtyRect of dirtyRects) {
+                    const [x, y, width, height] = dirtyRect;
+                    left = Math.min(x, left);
+                    right = Math.max(x + width, right);
+                    top = Math.min(y, top);
+                    bottom = Math.max(y + height, bottom);
+                }
+
+                const width = right - left;
+                const height = bottom - top;
+                // console.warn(`Too many dirty rectangles, merged into a single dirty rectangle - ${width}x${height}@${left},${top}`);
+                this.texture.updateSubImage(left, top, width, height);
+            } else {
+                for (const dirtyRect of dirtyRects) {
+                    this.texture.updateSubImage(...dirtyRect);
+                }
             }
         } else {
             console.warn('There is no texture to update! Is the canvas dimensionless?');
