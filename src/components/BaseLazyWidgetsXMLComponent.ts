@@ -1,10 +1,11 @@
-import { BaseLazyWidgetsComponent } from './BaseLazyWidgetsComponent.js';
 import { Property } from '@wonderlandengine/api';
-import { XMLUIParser } from 'lazy-widgets';
+import { XMLUIParser, type Widget, type XMLUIParserConfig, type XMLUIParserContext } from 'lazy-widgets';
 import { makeLWWLEErrMsg } from '../core/makeLWWLEErrMsg.js';
+import { type WLVirtualKeyboardRoot, type WLVirtualKeyboardRootProperties } from '../core/WLVirtualKeyboardRoot.js';
+import { BaseLazyWidgetsComponent } from './BaseLazyWidgetsComponent.js';
 
-import type { WLVirtualKeyboardRoot, WLVirtualKeyboardRootProperties } from '../core/WLVirtualKeyboardRoot.js';
-import type { Widget, XMLUIParserContext, XMLUIParserConfig } from 'lazy-widgets';
+// TODO when dadouvic updates the api, use the @merge decorator on the class to
+//      inherit properties from the parent component class
 
 export class BaseLazyWidgetsXMLComponent extends BaseLazyWidgetsComponent<WLVirtualKeyboardRoot, WLVirtualKeyboardRootProperties> {
     static override Properties = {

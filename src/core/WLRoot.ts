@@ -1,14 +1,9 @@
-import { Root, PointerDriver, DOMKeyboardDriver, DOMKeyboardDriverGroup, /*PointerWheelMode*/ } from 'lazy-widgets';
-import { vec3, quat } from 'gl-matrix';
+import { Collider, Mesh, MeshAttribute, MeshIndexType, Texture, type CollisionComponent, type Material, type MeshComponent, type Object3D, type WonderlandEngine } from '@wonderlandengine/api';
+import { CursorTarget, EventTypes, type Cursor } from '@wonderlandengine/components';
+import { type ICursorStyleManager } from 'cursor-style-manager-wle';
+import { quat, vec3 } from 'gl-matrix';
+import { DOMKeyboardDriver, DOMKeyboardDriverGroup, PointerDriver, Root, type RootProperties, type Widget } from 'lazy-widgets';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener.js';
-import { Texture, Collider, Mesh, MeshAttribute, MeshIndexType } from '@wonderlandengine/api';
-import { CursorTarget, EventTypes } from '@wonderlandengine/components';
-import { BaseLazyWidgetsComponent } from '../components/BaseLazyWidgetsComponent.js';
-
-import type { Widget, RootProperties } from 'lazy-widgets';
-import type { Cursor } from '@wonderlandengine/components';
-import type { Material, MeshComponent, CollisionComponent, Object as $Object, WonderlandEngine } from '@wonderlandengine/api';
-import type { ICursorStyleManager } from 'cursor-style-manager-wle';
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
 // crashes Wonderland Editor. Instead, use WLRoot.pointerDriver/keyboardDriver
@@ -97,6 +92,33 @@ export interface WLRootProperties extends RootProperties {
  * be used.
  */
 export class WLRoot extends Root {
+    /** Default units-per-pixel */
+    static readonly defaultUnitsPerPixel = 0.01;
+    /** Default collision group */
+    static readonly defaultCollisionGroup = 1;
+    /** Are materials cloned by default? */
+    static readonly defaultCloneMaterial = true;
+    /** Are pointer drivers auto-registered by default? */
+    static readonly defaultRegisterPointerDriver = true;
+    /** Are keyboard drivers auto-registered by default? */
+    static readonly defaultRegisterKeyboardDriver = true;
+    /** Is texture bleeding from old content prevented by default? */
+    static readonly defaultPreventBleeding = true;
+    /** Is texture bleeding from the texture atlas prevented by default? */
+    static readonly defaultPreventAtlasBleeding = true;
+    /**
+     * Default maximum canvas (texture) width. Smaller than lazy-widget's
+     * default value because Wonderland engine has much stricter texture limits
+     * due to the texture atlas system.
+     */
+    static readonly defaultMaxCanvasWidth = 2048;
+    /**
+     * Default maximum canvas (texture) height. Smaller than lazy-widget's
+     * default value because Wonderland engine has much stricter texture limits
+     * due to the texture atlas system.
+     */
+    static readonly defaultMaxCanvasHeight = 2048;
+
     /**
      * The shared PointerDriver instance. Getter only. The PointerDriver will
      * only be created when needed. Used for pointer (mouse & XR controller)
@@ -172,7 +194,7 @@ export class WLRoot extends Root {
 
     unitsPerPixel: number;
     texture: Texture | null = null;
-    meshObject: $Object | null;
+    meshObject: Object3D | null;
     mesh: Mesh | null = null;
     meshComponent: MeshComponent | null;
     materialClone: Material;
@@ -185,11 +207,11 @@ export class WLRoot extends Root {
     protected paintedOnce = false;
     private keydownEventListener: ((event: KeyboardEvent) => void) | null = null;
     private keyupEventListener: ((event: KeyboardEvent) => void) | null = null;
-    private unHoverFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private moveFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private downFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private upFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    // private wheelFunction: ((object: $Object, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    private unHoverFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    private moveFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    private downFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    private upFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    // private wheelFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
     private boundTo: HTMLElement;
     private lastWorldScale = new Float32Array(3);
     private cursorStyleManager: ICursorStyleManager | null;
@@ -199,7 +221,7 @@ export class WLRoot extends Root {
      * @param material - The material to use for this root's mesh. The material will be cloned.
      * @param child - The root's child widget.
      */
-    constructor(private wlObject: $Object, material: Material, child: Widget, properties?: WLRootProperties) {
+    constructor(private wlObject: Object3D, material: Material, child: Widget, properties?: WLRootProperties) {
         const cursorStyleManager = properties?.cursorStyleManager ?? null;
 
         properties = {
@@ -210,13 +232,11 @@ export class WLRoot extends Root {
                     this.boundTo.style.cursor = style;
                 }
             },
-            preventBleeding: true,
-            preventAtlasBleeding: true,
-            cloneMaterial: BaseLazyWidgetsComponent.Properties.cloneMaterial.default,
-            // Wonderland engine has much stricter texture limits because of the
-            // texture atlas system. Limit canvas to 2048x2048 by default
-            maxCanvasWidth: 2048,
-            maxCanvasHeight: 2048,
+            preventBleeding: WLRoot.defaultPreventBleeding,
+            preventAtlasBleeding: WLRoot.defaultPreventAtlasBleeding,
+            cloneMaterial: WLRoot.defaultCloneMaterial,
+            maxCanvasWidth: WLRoot.defaultMaxCanvasWidth,
+            maxCanvasHeight: WLRoot.defaultMaxCanvasHeight,
             ...properties
         };
 
@@ -226,14 +246,14 @@ export class WLRoot extends Root {
         this.boundTo = wlObject.engine.canvas;
         addPasteEventListener(this.boundTo, this);
 
-        let collisionGroup = properties.collisionGroup ?? BaseLazyWidgetsComponent.Properties.collisionGroup.default;
+        let collisionGroup: number | null = properties.collisionGroup ?? WLRoot.defaultCollisionGroup;
         if (collisionGroup < 0) {
             collisionGroup = null;
         }
 
-        const registerPointerDriver = properties.registerPointerDriver ?? BaseLazyWidgetsComponent.Properties.registerPointerDriver.default;
-        const registerKeyboardDriver = properties.registerKeyboardDriver ?? BaseLazyWidgetsComponent.Properties.registerKeyboardDriver.default;
-        this.unitsPerPixel = properties.unitsPerPixel ?? BaseLazyWidgetsComponent.Properties.unitsPerPixel.default;
+        const registerPointerDriver = properties.registerPointerDriver ?? WLRoot.defaultRegisterPointerDriver;
+        const registerKeyboardDriver = properties.registerKeyboardDriver ?? WLRoot.defaultRegisterKeyboardDriver;
+        this.unitsPerPixel = properties.unitsPerPixel ?? WLRoot.defaultUnitsPerPixel;
         this.textureUniformName = properties.textureUniformName;
 
         if (this.textureUniformName === '') {
@@ -320,7 +340,7 @@ export class WLRoot extends Root {
 
             const cursorPos = new Float32Array(3);
             const rot = new Float32Array(4);
-            const meshObject = (this.meshObject as $Object);
+            const meshObject = (this.meshObject as Object3D);
             const getCursorPos = (cursor: Cursor): [number, number] => {
                 cursorPos.set(cursor.cursorPos);
                 meshObject.getPositionWorld(TMP_VEC);
@@ -432,7 +452,7 @@ export class WLRoot extends Root {
         }
 
         // We know that this is `valid` and hence not null, typecast
-        const meshObject = (this.meshObject as $Object);
+        const meshObject = this.meshObject as Object3D;
 
         // Update (pre-layout)
         this.preLayoutUpdate();
@@ -441,7 +461,7 @@ export class WLRoot extends Root {
         const layoutDirty = this.resolveLayout();
         const [canvasWidth, canvasHeight] = this.canvasDimensions;
         if(layoutDirty) {
-            //console.log('Root\'s layout was dirty, resizing');
+            //console.log("Root's layout was dirty, resizing");
             // Resize and update UV if layout was dirty so that UI is not
             // stretched
             const [width, height] = this.dimensions;
@@ -531,7 +551,7 @@ export class WLRoot extends Root {
             super.enabled = enabled;
 
             if(this.paintedOnce) {
-                (this.meshObject as $Object).active = this.enabled;
+                (this.meshObject as Object3D).active = this.enabled;
             }
 
             if (this.cursorStyleManager && !enabled) {
@@ -668,7 +688,7 @@ export class WLRoot extends Root {
             this.meshComponent = null;
         }
 
-        // FIXME material is not destroyed. find a way to do it
+        // TODO if materials become a destroyable resource, destroy them here
 
         if(this.mesh) {
             this.mesh.destroy();

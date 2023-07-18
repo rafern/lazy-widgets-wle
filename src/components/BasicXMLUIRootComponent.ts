@@ -1,7 +1,9 @@
-import { BaseLazyWidgetsXMLComponent } from './BaseLazyWidgetsXMLComponent';
 import { Property } from '@wonderlandengine/api';
+import { type Widget, type XMLUIParser, type XMLUIParserConfig, type XMLUIParserContext } from 'lazy-widgets';
+import { BaseLazyWidgetsXMLComponent } from './BaseLazyWidgetsXMLComponent.js';
 
-import type { Widget, XMLUIParser, XMLUIParserConfig, XMLUIParserContext } from 'lazy-widgets';
+// TODO when dadouvic updates the api, use the @merge decorator on the class to
+//      inherit properties from the parent component class
 
 export class BasicXMLUIRootComponent extends BaseLazyWidgetsXMLComponent {
     static override TypeName = 'basic-xml-ui-root';

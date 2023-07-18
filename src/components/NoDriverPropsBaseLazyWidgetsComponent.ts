@@ -1,13 +1,9 @@
-import { Component, Property } from '@wonderlandengine/api';
+import { Component, type Material, type Object3D, type WonderlandEngine } from '@wonderlandengine/api';
+import { property } from '@wonderlandengine/api/decorators.js';
 import { CursorTarget } from '@wonderlandengine/components';
-import { makeLWWLEErrMsg } from '../core/makeLWWLEErrMsg';
-import { WLRoot } from '../core/WLRoot';
-
-import type { Material, WonderlandEngine, Object3D } from '@wonderlandengine/api';
-import type { Widget } from 'lazy-widgets';
-import type { WLRootProperties } from '../core/WLRoot';
-
-// TODO use decorators
+import { type Widget } from 'lazy-widgets';
+import { makeLWWLEErrMsg } from '../core/makeLWWLEErrMsg.js';
+import { WLRoot, type WLRootProperties } from '../core/WLRoot.js';
 
 /**
  * The base component for a lazy-widgets UI, with no editor properties for
@@ -15,44 +11,65 @@ import type { WLRootProperties } from '../core/WLRoot';
  * never be disabled
  */
 export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends WLRoot = WLRoot, WLRootPropertiesType extends WLRootProperties = WLRootProperties> extends Component {
-    static override Properties = {
-        material: Property.material(),
-        unitsPerPixel: Property.float(0.01),
-        collisionGroup: Property.int(1),
-        cloneMaterial: Property.bool(true),
-        textureUniformName: Property.string(),
-        cursorStyleManagerObject: Property.object(),
-        cursorStyleManagerName: Property.string('cursor-style-manager'),
-    };
-
     /** Material to apply the canvas texture to */
+    @property.material()
     material!: Material;
     /**
      * The amount of world units per canvas pixel. Determines the pixel density
-     * of the mesh. 0.01 by default.
+     * of the mesh.
      */
+    @property.float(WLRoot.defaultUnitsPerPixel)
     unitsPerPixel!: number;
     /**
      * The collision group that this root's collider will belong to. If
-     * negative, collider and cursor-target will not be added. 1 by default.
+     * negative, collider and cursor-target will not be added.
      */
+    @property.int(WLRoot.defaultCollisionGroup)
     collisionGroup!: number;
     /**
      * Should the material used for the Root be cloned? If false, then the
      * actual material will be used, which will lead to issues if the material
      * is also used elsewhere.
      */
+    @property.bool(WLRoot.defaultCloneMaterial)
     cloneMaterial!: boolean;
     /**
      * Which uniform name should be used for setting the material's texture? If
      * not passed, then the uniform name will be guessed from the pipeline name,
      * which will result in an error when an unknown pipeline is used.
      */
+    @property.string()
     textureUniformName!: string;
     /** Object with cursor style manager */
+    @property.object()
     cursorStyleManagerObject!: Object3D | null;
     /** Component name for cursor style manager */
+    @property.string('cursor-style-manager')
     cursorStyleManagerName!: string;
+    /**
+     * Should texture bleeding introduced from old content be prevented by
+     * clearing areas with old content?
+     */
+    @property.bool(WLRoot.defaultPreventBleeding)
+    preventBleeding!: boolean;
+    /**
+     * Should texture bleeding introduced from the texture atlas be prevented by
+     * adding a transparent black 1 pixel border to the canvas?
+     */
+    @property.bool(WLRoot.defaultPreventAtlasBleeding)
+    preventAtlasBleeding!: boolean;
+    /**
+     * Maximum canvas (texture) width. If the width is exceeded, then the
+     * contents will be squeezed automatically to fit the texture.
+     */
+    @property.int(WLRoot.defaultMaxCanvasWidth)
+    maxCanvasWidth!: number;
+    /**
+     * Maximum canvas (texture) height. If the height is exceeded, then the
+     * contents will be squeezed automatically to fit the texture.
+     */
+    @property.int(WLRoot.defaultMaxCanvasHeight)
+    maxCanvasHeight!: number;
 
     /**
      * The lazy-widgets UI root.
@@ -67,6 +84,11 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      * implementation.
      */
     private superInitCalled = false;
+    /**
+     * Do we want the root to be enabled when it's created? Used to handle root
+     * toggling when the root isn't loaded yet
+     */
+    protected wantEnabled = false;
 
     static override onRegister(engine: WonderlandEngine) {
         engine.registerComponent(CursorTarget);
@@ -91,6 +113,7 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
             }
 
             this.root = root;
+            root.enabled = this.wantEnabled;
             this.onRootReady(root);
         });
     }
@@ -108,24 +131,34 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
         }
     }
 
+    private doRootUpdate(dt: number): void {
+        const root = this.root as WLRootType;
+        const beforeUpdateRet = this.beforeWidgetUpdate(root, dt);
+
+        if (beforeUpdateRet || beforeUpdateRet === undefined) {
+            root.update();
+            this.afterWidgetUpdate(root, dt);
+        }
+    }
+
     override update(dt: number) {
         if(this.guardRoot(this.root)) {
-            const beforeUpdateRet = this.beforeWidgetUpdate(this.root, dt);
-
-            if (beforeUpdateRet || beforeUpdateRet === undefined) {
-                this.root.update();
-                this.afterWidgetUpdate(this.root, dt);
-            }
+            this.doRootUpdate(dt);
         }
     }
 
     override onActivate() {
+        this.wantEnabled = true;
         if(this.guardRoot(this.root)) {
             this.root.enabled = true;
+            // XXX need to force an update here otherwise there is a single
+            //     frame with old content
+            this.doRootUpdate(0);
         }
     }
 
     override onDeactivate() {
+        this.wantEnabled = false;
         if(this.guardRoot(this.root)) {
             this.root.enabled = false;
         }
@@ -178,6 +211,10 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
             cloneMaterial: this.cloneMaterial,
             textureUniformName: this.textureUniformName,
             cursorStyleManager: this.cursorStyleManagerObject?.getComponent(this.cursorStyleManagerName),
+            preventBleeding: this.preventBleeding,
+            preventAtlasBleeding: this.preventAtlasBleeding,
+            maxCanvasWidth: this.maxCanvasWidth,
+            maxCanvasHeight: this.maxCanvasHeight,
         } as WLRootPropertiesType;
     }
 

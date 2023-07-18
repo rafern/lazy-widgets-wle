@@ -20,7 +20,7 @@
     "esModuleInterop": true,
     "noImplicitOverride": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node"
+    "moduleResolution": "nodenext"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "typings"]

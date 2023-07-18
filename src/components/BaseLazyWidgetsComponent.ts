@@ -1,8 +1,9 @@
 import { Property } from '@wonderlandengine/api';
-import { WLRoot } from '../core/WLRoot';
-import { NoDriverPropsBaseLazyWidgetsComponent } from './NoDriverPropsBaseLazyWidgetsComponent';
+import { WLRoot, type WLRootProperties } from '../core/WLRoot.js';
+import { NoDriverPropsBaseLazyWidgetsComponent } from './NoDriverPropsBaseLazyWidgetsComponent.js';
 
-import type { WLRootProperties } from '../core/WLRoot';
+// TODO when dadouvic updates the api, use the @merge decorator on the class to
+//      inherit properties from the parent component class
 
 /**
  * The base component for a lazy-widgets UI.
@@ -10,8 +11,8 @@ import type { WLRootProperties } from '../core/WLRoot';
 export abstract class BaseLazyWidgetsComponent<WLRootType extends WLRoot = WLRoot, WLRootPropertiesType extends WLRootProperties = WLRootProperties> extends NoDriverPropsBaseLazyWidgetsComponent<WLRootType, WLRootPropertiesType> {
     static override Properties = {
         ...NoDriverPropsBaseLazyWidgetsComponent.Properties,
-        registerPointerDriver: Property.bool(true),
-        registerKeyboardDriver: Property.bool(true),
+        registerPointerDriver: Property.bool(WLRoot.defaultRegisterPointerDriver),
+        registerKeyboardDriver: Property.bool(WLRoot.defaultRegisterKeyboardDriver),
     };
 
     /**
