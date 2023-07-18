@@ -507,14 +507,14 @@ export class WLRoot extends Root {
         this.postLayoutUpdate();
 
         // Paint
-        const wasDirty = this.paint();
+        const dirtyRects = this.paint();
 
         if(!this.paintedOnce) {
             this.paintedOnce = true;
             meshObject.active = true;
         }
 
-        if(!wasDirty) {
+        if(!dirtyRects) {
             return;
         }
 
@@ -540,7 +540,9 @@ export class WLRoot extends Root {
             }
         } else if(this.texture) {
             //console.log('Root was dirty, updating texture');
-            this.texture.update();
+            for (const dirtyRect of dirtyRects) {
+                this.texture.updateSubImage(...dirtyRect);
+            }
         } else {
             console.warn('There is no texture to update! Is the canvas dimensionless?');
         }
