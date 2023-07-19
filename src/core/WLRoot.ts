@@ -397,8 +397,12 @@ export class WLRoot extends Root {
                     }
                 };
 
-                this.boundTo.addEventListener('keydown', this.keydownEventListener);
-                this.boundTo.addEventListener('keyup', this.keyupEventListener);
+                this.boundTo.addEventListener('keydown', this.keydownEventListener, {
+                    passive: true, capture: true,
+                });
+                this.boundTo.addEventListener('keyup', this.keyupEventListener, {
+                    passive: true, capture: true,
+                });
 
                 this.unHoverFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
                     WLRoot.pointerDriver.leavePointer(
