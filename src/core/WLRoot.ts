@@ -244,7 +244,7 @@ export class WLRoot extends Root {
     private lastWorldScale = new Float32Array(3);
     private cursorStyleManager: ICursorStyleManager | null;
     private lastUnitsPerPixel: number;
-    private collisionOverextension: number;
+    collisionOverextensionPixels: number;
     private overextendOnCapture: boolean;
     private curCollisionOverextension = 0;
 
@@ -274,7 +274,7 @@ export class WLRoot extends Root {
 
         super(child, properties);
 
-        this.collisionOverextension = properties.collisionOverextensionPixels ?? WLRoot.defaultCollisionOverextensionPixels;
+        this.collisionOverextensionPixels = properties.collisionOverextensionPixels ?? WLRoot.defaultCollisionOverextensionPixels;
         this.overextendOnCapture = properties.overextendCollisionOnCursorCapture ?? WLRoot.defaultOverextendCollisionOnCursorCapture;
         this.destroyTextureWhenDisabled = properties.destroyTextureWhenDisabled ?? WLRoot.defaultDestroyTextureWhenDisabled;
         this.cursorStyleManager = cursorStyleManager;
@@ -479,7 +479,7 @@ export class WLRoot extends Root {
 
     private getEffectiveCollisionOverextension() {
         if (!this.overextendOnCapture || this._foci.get(FocusType.Pointer)) {
-            return this.collisionOverextension;
+            return Math.max(0, this.collisionOverextensionPixels);
         } else {
             return 0;
         }
