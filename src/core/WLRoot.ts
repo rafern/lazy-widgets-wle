@@ -245,7 +245,7 @@ export class WLRoot extends Root {
     private cursorStyleManager: ICursorStyleManager | null;
     private lastUnitsPerPixel: number;
     collisionOverextensionPixels: number;
-    private overextendOnCapture: boolean;
+    overextendCollisionOnCursorCapture: boolean;
     private curCollisionOverextension = 0;
 
     /**
@@ -275,7 +275,7 @@ export class WLRoot extends Root {
         super(child, properties);
 
         this.collisionOverextensionPixels = properties.collisionOverextensionPixels ?? WLRoot.defaultCollisionOverextensionPixels;
-        this.overextendOnCapture = properties.overextendCollisionOnCursorCapture ?? WLRoot.defaultOverextendCollisionOnCursorCapture;
+        this.overextendCollisionOnCursorCapture = properties.overextendCollisionOnCursorCapture ?? WLRoot.defaultOverextendCollisionOnCursorCapture;
         this.destroyTextureWhenDisabled = properties.destroyTextureWhenDisabled ?? WLRoot.defaultDestroyTextureWhenDisabled;
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
@@ -478,7 +478,7 @@ export class WLRoot extends Root {
     }
 
     private getEffectiveCollisionOverextension() {
-        if (!this.overextendOnCapture || this._foci.get(FocusType.Pointer)) {
+        if (!this.overextendCollisionOnCursorCapture || this._foci.get(FocusType.Pointer)) {
             return Math.max(0, this.collisionOverextensionPixels);
         } else {
             return 0;
