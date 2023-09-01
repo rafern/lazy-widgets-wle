@@ -77,6 +77,19 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      */
     @property.bool(WLRoot.defaultDestroyTextureWhenDisabled)
     destroyTextureWhenDisabled!: boolean;
+    /**
+     * How many pixels to over-extend the collision by. For example, if 2, and
+     * the units-per-pixel is 0.01, then the collision extents will be expanded
+     * by 0.02 game units on all sides.
+     */
+    @property.float(WLRoot.defaultCollisionOverextensionPixels)
+    collisionOverextensionPixels!: number;
+    /**
+     * Should the collision extents only be expanded when the cursor is being
+     * captured?
+     */
+    @property.bool(WLRoot.defaultOverextendCollisionOnCursorCapture)
+    overextendCollisionOnCursorCapture!: boolean;
 
     /**
      * The lazy-widgets UI root.
@@ -223,6 +236,8 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
             maxCanvasWidth: this.maxCanvasWidth,
             maxCanvasHeight: this.maxCanvasHeight,
             destroyTextureWhenDisabled: this.destroyTextureWhenDisabled,
+            collisionOverextensionPixels: this.collisionOverextensionPixels,
+            overextendCollisionOnCursorCapture: this.overextendCollisionOnCursorCapture,
         } as WLRootPropertiesType;
     }
 

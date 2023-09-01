@@ -2,7 +2,7 @@ import { Collider, Mesh, MeshAttribute, MeshIndexType, Texture, type CollisionCo
 import { CursorTarget, EventTypes, type Cursor } from '@wonderlandengine/components';
 import { type ICursorStyleManager } from 'cursor-style-manager-wle';
 import { quat, vec3 } from 'gl-matrix';
-import { DOMKeyboardDriver, DOMKeyboardDriverGroup, PointerDriver, Root, type RootProperties, type Widget } from 'lazy-widgets';
+import { DOMKeyboardDriver, DOMKeyboardDriverGroup, FocusType, PointerDriver, Root, type RootProperties, type Widget } from 'lazy-widgets';
 import { addPasteEventListener, removePasteEventListener } from './paste-event-listener.js';
 
 // Drivers shared by all UI roots. For some reason, setting up the drivers here
@@ -37,20 +37,20 @@ const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
 export interface WLRootProperties extends RootProperties {
     /**
      * The amount of world units per canvas pixel. Determines the pixel density
-     * of the mesh. 0.01 by default.
+     * of the mesh.
      */
     unitsPerPixel?: number,
     /**
      * The collision group that this root's collider will belong to. If null,
-     * collider and cursor-target will not be added. 1 by default.
+     * collider and cursor-target will not be added.
      */
     collisionGroup?: number,
     /**
      * Register the default pointer driver to this root? If collisionGroup is
-     * null, this is forced to false. true by default.
+     * null, this is forced to false.
      */
     registerPointerDriver?: boolean,
-    /** Register the default keyboard driver to this root? true by default. */
+    /** Register the default keyboard driver to this root? */
     registerKeyboardDriver?: boolean,
     /**
      * Should the material used for the Root be cloned? If false, then the
@@ -80,6 +80,17 @@ export interface WLRootProperties extends RootProperties {
      * additional texture updates when re-enabling the UI root.
      */
     destroyTextureWhenDisabled?: boolean,
+    /**
+     * How many pixels to over-extend the collision by. For example, if 2, and
+     * the units-per-pixel is 0.01, then the collision extents will be expanded
+     * by 0.02 game units on all sides.
+     */
+    collisionOverextensionPixels?: number;
+    /**
+     * Should the collision extents only be expanded when the cursor is being
+     * captured?
+     */
+    overextendCollisionOnCursorCapture?: boolean;
 }
 
 /**
@@ -128,6 +139,13 @@ export class WLRoot extends Root {
      * Should the UI texture be destroyed by default when the root is disabled?
      */
     static readonly defaultDestroyTextureWhenDisabled = false;
+    /** How many pixels to over-extend the collision extents by default. */
+    static readonly defaultCollisionOverextensionPixels = 16;
+    /**
+     * Should the collision extents only be over-extended when the cursor is
+     * being captured by default?
+     */
+    static readonly defaultOverextendCollisionOnCursorCapture = true;
 
     /**
      * The shared PointerDriver instance. Getter only. The PointerDriver will
@@ -226,6 +244,9 @@ export class WLRoot extends Root {
     private lastWorldScale = new Float32Array(3);
     private cursorStyleManager: ICursorStyleManager | null;
     private lastUnitsPerPixel: number;
+    private collisionOverextension: number;
+    private overextendOnCapture: boolean;
+    private curCollisionOverextension = 0;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -253,6 +274,8 @@ export class WLRoot extends Root {
 
         super(child, properties);
 
+        this.collisionOverextension = properties.collisionOverextensionPixels ?? WLRoot.defaultCollisionOverextensionPixels;
+        this.overextendOnCapture = properties.overextendCollisionOnCursorCapture ?? WLRoot.defaultOverextendCollisionOnCursorCapture;
         this.destroyTextureWhenDisabled = properties.destroyTextureWhenDisabled ?? WLRoot.defaultDestroyTextureWhenDisabled;
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
@@ -364,10 +387,7 @@ export class WLRoot extends Root {
                 meshObject.getScalingWorld(TMP_VEC);
                 vec3.div(cursorPos, cursorPos, TMP_VEC);
 
-                return [
-                    Math.min(Math.max((cursorPos[0] + 1) / 2, 0), 1),
-                    Math.min(Math.max(1 - ((cursorPos[1] + 1) / 2), 0), 1),
-                ];
+                return [ (cursorPos[0] + 1) / 2, 1 - ((cursorPos[1] + 1) / 2) ];
             }
 
             if(registerPointerDriver) {
@@ -457,6 +477,29 @@ export class WLRoot extends Root {
         this.valid = true;
     }
 
+    private getEffectiveCollisionOverextension() {
+        if (!this.overextendOnCapture || this._foci.get(FocusType.Pointer)) {
+            return this.collisionOverextension;
+        } else {
+            return 0;
+        }
+    }
+
+    private updateCollisionExtents(effOverextend: number, width: number, height: number) {
+        this.curCollisionOverextension = effOverextend;
+        const oxPixels2 = effOverextend * 2;
+        const oxWidth = oxPixels2 + width;
+        const oxHeight = oxPixels2 + height;
+        const oxWMul = oxWidth / width;
+        const oxHMul = oxHeight / height;
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.collision!.extents = [
+            this.lastWorldScale[0] * oxWMul,
+            this.lastWorldScale[1] * oxHMul,
+            0.01,
+        ];
+    }
 
     /**
      * Do a full update of this root. Does a pre-layout update, resolves the
@@ -493,7 +536,8 @@ export class WLRoot extends Root {
 
             if(this.collision !== null) {
                 meshObject.getScalingWorld(this.lastWorldScale);
-                this.collision.extents = [ this.lastWorldScale[0], this.lastWorldScale[1], 0.01 ];
+                const effOverextend = this.getEffectiveCollisionOverextension();
+                this.updateCollisionExtents(effOverextend, width, height);
             }
 
             let uBorder = 0, vBorder = 0;
@@ -511,13 +555,15 @@ export class WLRoot extends Root {
         } else if(this.collision !== null) {
             meshObject.getScalingWorld(TMP_VEC);
             const diffSqr = Math.abs(TMP_VEC[0] - this.lastWorldScale[0]) + Math.abs(TMP_VEC[1] - this.lastWorldScale[1]);
+            const effOverextend = this.getEffectiveCollisionOverextension();
 
-            if (diffSqr > 0.1) {
+            if (diffSqr > 0.1 || this.curCollisionOverextension !== effOverextend) {
                 // XXX can't use .set since TMP_VEC is a vec4, not a vec3
                 this.lastWorldScale[0] = TMP_VEC[0];
                 this.lastWorldScale[1] = TMP_VEC[1];
                 this.lastWorldScale[2] = TMP_VEC[2];
-                this.collision.extents = [ TMP_VEC[0], TMP_VEC[1], 0.01 ];
+                const [width, height] = this.dimensions;
+                this.updateCollisionExtents(effOverextend, width, height);
             }
         }
 
