@@ -124,6 +124,12 @@ export class WLRoot extends Root {
     /** Is texture bleeding from the texture atlas prevented by default? */
     static readonly defaultPreventAtlasBleeding = true;
     /**
+     * The resolution of the canvas. For example, if 2, then the resolution of
+     * the canvas will be doubled. If 0.5, then the resolution of the canvas
+     * will be halved.
+     */
+    static readonly defaultResolution = 1;
+    /**
      * Default maximum canvas (texture) width. Smaller than lazy-widget's
      * default value because Wonderland engine has much stricter texture limits
      * due to the texture atlas system.
@@ -267,6 +273,7 @@ export class WLRoot extends Root {
             preventBleeding: WLRoot.defaultPreventBleeding,
             preventAtlasBleeding: WLRoot.defaultPreventAtlasBleeding,
             cloneMaterial: WLRoot.defaultCloneMaterial,
+            resolution: WLRoot.defaultResolution,
             maxCanvasWidth: WLRoot.defaultMaxCanvasWidth,
             maxCanvasHeight: WLRoot.defaultMaxCanvasHeight,
             ...properties

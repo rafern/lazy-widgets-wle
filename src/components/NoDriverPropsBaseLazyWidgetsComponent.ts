@@ -59,6 +59,31 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
     @property.bool(WLRoot.defaultPreventAtlasBleeding)
     preventAtlasBleeding!: boolean;
     /**
+     * The resolution of the canvas. For example, if 2, then the resolution of
+     * the canvas will be doubled. If 0.5, then the resolution of the canvas
+     * will be halved.
+     */
+    @property.float(WLRoot.defaultResolution)
+    resolution!: number;
+    /** Minimum layout width. Must be a number greater or equal to 0. */
+    @property.float(0)
+    minWidth!: number;
+    /**
+     * Maximum layout width. Must be a number greater than 0, or 0 if there is
+     * no maximum width.
+     */
+    @property.float(0)
+    maxWidth!: number;
+    /** Minimum layout height. Must be a number greater or equal to 0. */
+    @property.float(0)
+    minHeight!: number;
+    /**
+     * Maximum layout height. Must be a number greater than 0, or 0 if there is
+     * no maximum height.
+     */
+    @property.float(0)
+    maxHeight!: number;
+    /**
      * Maximum canvas (texture) width. If the width is exceeded, then the
      * contents will be squeezed automatically to fit the texture.
      */
@@ -225,6 +250,28 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      * specific to the Wonderland Engine integration.
      */
     protected getRootProperties(): WLRootPropertiesType {
+        const constraints = [this.minWidth, this.maxWidth, this.minHeight, this.maxHeight];
+
+        if (constraints[0] < 0) {
+            throw new Error('Minimum width must be greater or equal to 0');
+        }
+        if (constraints[1] < 0) {
+            throw new Error('Maximum width must be greater or equal to 0');
+        }
+        if (constraints[2] < 0) {
+            throw new Error('Minimum height must be greater or equal to 0');
+        }
+        if (constraints[3] < 0) {
+            throw new Error('Maximum height must be greater or equal to 0');
+        }
+
+        if (constraints[1] === 0) {
+            constraints[1] = Infinity;
+        }
+        if (constraints[3] === 0) {
+            constraints[3] = Infinity;
+        }
+
         return {
             unitsPerPixel: this.unitsPerPixel,
             collisionGroup: this.collisionGroup,
@@ -233,11 +280,13 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
             cursorStyleManager: this.cursorStyleManagerObject?.getComponent(this.cursorStyleManagerName),
             preventBleeding: this.preventBleeding,
             preventAtlasBleeding: this.preventAtlasBleeding,
+            resolution: this.resolution,
             maxCanvasWidth: this.maxCanvasWidth,
             maxCanvasHeight: this.maxCanvasHeight,
             destroyTextureWhenDisabled: this.destroyTextureWhenDisabled,
             collisionOverextensionPixels: this.collisionOverextensionPixels,
             overextendCollisionOnCursorCapture: this.overextendCollisionOnCursorCapture,
+            constraints,
         } as WLRootPropertiesType;
     }
 

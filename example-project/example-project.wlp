@@ -266,7 +266,8 @@
                         "collisionGroup": 1,
                         "cloneMaterial": true,
                         "cursorObject": "17",
-                        "cursorStyleManagerObject": "71"
+                        "cursorStyleManagerObject": "71",
+                        "resolution": 3.0
                     }
                 }
             ],
@@ -290,7 +291,8 @@
                     "virtual-keyboard-ui-root": {
                         "material": "59",
                         "cloneMaterial": true,
-                        "cursorStyleManagerObject": "71"
+                        "cursorStyleManagerObject": "71",
+                        "resolution": 2.0
                     }
                 }
             ],
@@ -451,7 +453,8 @@
                         "material": "59",
                         "xmlUrl": "ui.xml",
                         "unitsPerPixel": 0.0049999,
-                        "cursorStyleManagerObject": "71"
+                        "cursorStyleManagerObject": "71",
+                        "resolution": 3.0
                     }
                 }
             ],
@@ -757,7 +760,7 @@
             "version": [
                 1,
                 0,
-                1
+                4
             ]
         },
         "vr": {
