@@ -80,7 +80,7 @@ export class LazyWidgetsInputGuardComponent extends Component {
                 }
 
                 if(this.cursorObject !== null) {
-                    const cursors: Array<Cursor> = this.cursorObject.getComponents(this.cursorComponentName);
+                    const cursors = this.cursorObject.getComponents(this.cursorComponentName) as Array<Cursor>;
                     if(cursors.length === 0) {
                         this.warnComponentMissing('cursorObject', this.cursorComponentName);
                     } else {

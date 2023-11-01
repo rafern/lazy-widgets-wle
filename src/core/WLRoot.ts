@@ -91,6 +91,12 @@ export interface WLRootProperties extends RootProperties {
      * captured?
      */
     overextendCollisionOnCursorCapture?: boolean;
+    /**
+     * Should contentEditable be set to true? Needed for paste events, but
+     * creates issues on mobile; virtual keyboard is opened whenever the canvas
+     * is clicked. Disabled by default
+     */
+    enablePasteEvents?: boolean;
 }
 
 /**
@@ -253,6 +259,7 @@ export class WLRoot extends Root {
     collisionOverextensionPixels: number;
     overextendCollisionOnCursorCapture: boolean;
     private curCollisionOverextension = 0;
+    private hasPasteEvents = false;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -286,7 +293,11 @@ export class WLRoot extends Root {
         this.destroyTextureWhenDisabled = properties.destroyTextureWhenDisabled ?? WLRoot.defaultDestroyTextureWhenDisabled;
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
-        addPasteEventListener(this.boundTo, this);
+
+        if (properties?.enablePasteEvents) {
+            addPasteEventListener(this.boundTo, this);
+            this.hasPasteEvents = true;
+        }
 
         let collisionGroup: number | null = properties.collisionGroup ?? WLRoot.defaultCollisionGroup;
         if (collisionGroup < 0) {
@@ -726,7 +737,10 @@ export class WLRoot extends Root {
 
     override destroy(): void {
         // remove listeners
-        removePasteEventListener(this.boundTo, this);
+        if (this.hasPasteEvents) {
+            this.hasPasteEvents = false;
+            removePasteEventListener(this.boundTo, this);
+        }
 
         if(this.keydownEventListener !== null) {
             this.boundTo.removeEventListener('keydown', this.keydownEventListener);
