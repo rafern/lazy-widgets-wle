@@ -5,7 +5,7 @@
     "module": "es6",
     "lib": ["ESNext", "dom"],
     "sourceMap": true,
-    "sourceRoot": "https://raw.githubusercontent.com/rafern/lazy-widgets-wle/main/",
+    "inlineSources": true,
     "strict": true,
     "strictFunctionTypes": true,
     "noImplicitReturns": true,

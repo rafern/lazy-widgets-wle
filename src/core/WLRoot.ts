@@ -224,6 +224,7 @@ export class WLRoot extends Root {
         const map = WLRoot.pointerIDs;
         let pointer = map.get(cursor);
         if(typeof pointer === 'undefined') {
+            // TODO allow dragToScroll to be enabled somehow
             pointer = WLRoot.pointerDriver.registerPointer();
             //console.log('New pointer', pointer, 'registered for cursor', cursor);
             map.set(cursor, pointer);
