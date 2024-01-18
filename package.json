@@ -16,10 +16,10 @@
     "lint-fix": "eslint src/ --ext .ts --fix",
     "build": "tsc",
     "dev": "tsc --watch",
-    "docs": "typedoc --options typedoc.json",
+    "docs": "typedoc --options typedoc.json --plugin typedoc-plugin-external-resolver",
     "test": "echo Dummy test - TODO implement tests",
-    "clean": "shx rm -rf dist/*",
-    "pack": "npm run clean && npm run lint && npm run test && npm run docs && npm run build && npm pack"
+    "clean-build": "shx rm -rf dist/*",
+    "pack": "npm run clean-build && npm run lint && npm run test && npm run docs && npm run build && npm pack"
   },
   "files": [
     "dist"
@@ -48,9 +48,9 @@
     "lazy-widgets": "^0.7.7",
     "shx": "^0.3.4",
     "tslib": "^2.4.1",
-    "typedoc": "^0.23.24",
-    "typedoc-plugin-external-resolver": "^1.0.1",
-    "typescript": "^4.9.4"
+    "typedoc": "^0.25.4",
+    "typedoc-plugin-external-resolver": "^1.0.3",
+    "typescript": "^5.3.3"
   },
   "peerDependencies": {
     "@wonderlandengine/api": ">= 1.0.0",
