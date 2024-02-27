@@ -833,4 +833,13 @@ export class WLRoot extends Root {
         this.texture.destroy();
         this.texture = null;
     }
+
+    /**
+     * Get the collision component used for detecting cursor input. Will be null
+     * if a {@link WLRootProperties#collisionGroup} is not provided when
+     * creating this WLRoot.
+     */
+    getCollider() {
+        return this.collision;
+    }
 }
