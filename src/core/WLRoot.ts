@@ -43,11 +43,17 @@ export interface WLRootProperties extends RootProperties {
     /**
      * The collision group that this root's collider will belong to. If null,
      * collider and cursor-target will not be added.
+     * @deprecated Use {@link WLRootProperties#collisionGroupsMask} instead
      */
     collisionGroup?: number,
     /**
-     * Register the default pointer driver to this root? If collisionGroup is
-     * null, this is forced to false.
+     * The collision groups that this root's collider will belong to. If 0,
+     * collider and cursor-target will not be added.
+     */
+    collisionGroupsMask?: number,
+    /**
+     * Register the default pointer driver to this root? If collisionGroupsMask
+     * is 0, this is forced to false.
      */
     registerPointerDriver?: boolean,
     /** Register the default keyboard driver to this root? */
@@ -117,8 +123,13 @@ export interface WLRootProperties extends RootProperties {
 export class WLRoot extends Root {
     /** Default units-per-pixel */
     static readonly defaultUnitsPerPixel = 0.01;
-    /** Default collision group */
+    /**
+     * Default collision group
+     * @deprecated Use {@link WLRoot.defaultCollisionGroupsMask} instead
+     */
     static readonly defaultCollisionGroup = 1;
+    /** Default collision groups, as a bitmask */
+    static readonly defaultCollisionGroupsMask = 0;
     /** Are materials cloned by default? */
     static readonly defaultCloneMaterial = true;
     /** Are pointer drivers auto-registered by default? */
@@ -300,11 +311,8 @@ export class WLRoot extends Root {
             this.hasPasteEvents = true;
         }
 
-        let collisionGroup: number | null = properties.collisionGroup ?? WLRoot.defaultCollisionGroup;
-        if (collisionGroup < 0) {
-            collisionGroup = null;
-        }
-
+        // TODO remove collisionGroup in next major
+        const collisionGroupsMask: number = (properties?.collisionGroupsMask ?? WLRoot.defaultCollisionGroupsMask) | (1 << (properties?.collisionGroup ?? WLRoot.defaultCollisionGroup));
         const registerPointerDriver = properties.registerPointerDriver ?? WLRoot.defaultRegisterPointerDriver;
         const registerKeyboardDriver = properties.registerKeyboardDriver ?? WLRoot.defaultRegisterKeyboardDriver;
         this.unitsPerPixel = properties.unitsPerPixel ?? WLRoot.defaultUnitsPerPixel;
@@ -327,7 +335,7 @@ export class WLRoot extends Root {
         this.meshObject.active = false;
 
         // Setup drivers
-        if(collisionGroup !== null && registerPointerDriver) {
+        if(collisionGroupsMask !== 0 && registerPointerDriver) {
             this.registerDriver(WLRoot.pointerDriver);
         }
 
@@ -372,11 +380,11 @@ export class WLRoot extends Root {
         this._setupMesh(0, 1, 1, 0);
 
         // Setup mouse pointer input
-        if(collisionGroup !== null) {
+        if(collisionGroupsMask !== 0) {
             this.collision = this.meshObject.addComponent('collision', {
                 collider: Collider.Box,
                 extents: [1, 1, 0.01],
-                group: 1 << collisionGroup,
+                group: collisionGroupsMask,
             });
 
             if (this.collision === null) {
@@ -836,7 +844,7 @@ export class WLRoot extends Root {
 
     /**
      * Get the collision component used for detecting cursor input. Will be null
-     * if a {@link WLRootProperties#collisionGroup} is not provided when
+     * if a {@link WLRootProperties#collisionGroupsMask} is not provided when
      * creating this WLRoot.
      */
     getCollider() {
