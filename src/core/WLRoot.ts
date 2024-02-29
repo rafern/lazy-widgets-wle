@@ -584,7 +584,7 @@ export class WLRoot extends Root {
             const diffSqr = Math.abs(TMP_VEC[0] - this.lastWorldScale[0]) + Math.abs(TMP_VEC[1] - this.lastWorldScale[1]);
             const effOverextend = this.getEffectiveCollisionOverextension();
 
-            if (diffSqr > 0.1 || this.curCollisionOverextension !== effOverextend) {
+            if (diffSqr >= 0.0025 || this.curCollisionOverextension !== effOverextend) {
                 // XXX can't use .set since TMP_VEC is a vec4, not a vec3
                 this.lastWorldScale[0] = TMP_VEC[0];
                 this.lastWorldScale[1] = TMP_VEC[1];
