@@ -6,6 +6,9 @@
   "type": "module",
   "module": "js/index.js",
   "packageManager": "npm@8.19.2",
+  "scripts": {
+    "preinstall": "cd .. && npm install && node ./dev/needs-build.cjs && npm run build || echo Build skipped or failed"
+  },
   "keywords": [
     "wonderland-engine"
   ],
