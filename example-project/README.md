@@ -4,10 +4,11 @@ Basic example project for how to use lazy-widgets in Wonderland Engine.
 
 ## Installation
 
-This project is also used for continuous integration, so some extra steps are
-needed before opening the project:
-1. Delete `package-lock.json`
-2. Replace `file:..` with the current lazy-widgets-wle version (`^0.3.0`) in `package.json`
+This project is also used for continuous integration, and so it uses the parent
+folder as the source for the `lazy-widgets-wle` package instead of installing it
+from the NPM registry.
 
-After this is done, the project can be opened in the Wonderland Engine editor
-as usual.
+However, it uses a `preinstall` script that automatically installs the package
+correctly, so you shouldn't have to do anything for the package to work (unless
+you have the `npm install` on start option disabled in the editor; if so you
+have to manually run `npm install`).

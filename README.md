@@ -9,8 +9,11 @@ library.
 
 ## Installation and setup
 
+> **Before you follow these instructions**: These instructions don't apply to the example project. The example project should run out-of-the-box, **and following these might break it**.
+
 1. Install the `lazy-widgets` NPM package: `npm install --save-dev lazy-widgets`
-2. Install this NPM package: `npm install --save-dev lazy-widgets-wle`
+2. Install this NPM package: `npm install --save lazy-widgets-wle`
+    - Make sure to use `--save` instead of `--save-dev`, otherwise it will not work, since Wonderland Engine libraries can't be `devDependencies` if they are meant to be used in the editor
 3. Import needed classes from `lazy-widgets` and `lazy-widgets-wle` in your code
 4. Create a new component for your UI root ([see example section](#Example))
 5. Set the material to use for your UI root component to a textured material. If you want a semi-transparent background, create a new pipeline with alpha blending enabled
@@ -70,6 +73,7 @@ This project uses the following open-source projects:
 - [@typescript-eslint/parser](https://github.com/typescript-eslint/typescript-eslint) licensed under the BSD 2-Clause license
 - [@wonderlandengine/api](https://www.npmjs.com/package/@wonderlandengine/api) licensed under the MIT license
 - [@wonderlandengine/components](https://www.npmjs.com/package/@wonderlandengine/components) licensed under the MIT license
+- [cursor-style-manager-wle](https://github.com/playkostudios/cursor-style-manager-wle) licensed under the MIT license
 - [eslint](https://github.com/eslint/eslint) licensed under the MIT license
 - [eslint-plugin-tsdoc](https://github.com/microsoft/tsdoc) licensed under the MIT license
 - [gl-matrix](https://github.com/toji/gl-matrix) licensed under the MIT license
