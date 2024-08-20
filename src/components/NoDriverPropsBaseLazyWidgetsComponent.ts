@@ -21,13 +21,6 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
     @property.float(WLRoot.defaultUnitsPerPixel)
     unitsPerPixel!: number;
     /**
-     * The collision group that this root's collider will belong to. If
-     * negative, collider and cursor-target will not be added.
-     * @deprecated Use {@link NoDriverPropsBaseLazyWidgetsComponent#collisionGroupsMask} instead
-     */
-    @property.int(WLRoot.defaultCollisionGroup)
-    collisionGroup!: number;
-    /**
      * The collision groups that this root's collider will belong to. If 0,
      * collider and cursor-target will not be added.
      */
@@ -281,7 +274,6 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
 
         return {
             unitsPerPixel: this.unitsPerPixel,
-            collisionGroup: this.collisionGroup,
             collisionGroupsMask: this.collisionGroupsMask,
             cloneMaterial: this.cloneMaterial,
             textureUniformName: this.textureUniformName,

@@ -16,8 +16,8 @@ export abstract class BaseLazyWidgetsComponent<WLRootType extends WLRoot = WLRoo
     };
 
     /**
-     * Register the default pointer driver to this root? If collisionGroup is
-     * negative, this is forced to false. true by default.
+     * Register the default pointer driver to this root? If collisionGroupsMask
+     * is zero, this is forced to false. true by default.
      */
     registerPointerDriver!: boolean;
     /** Register the default keyboard driver to this root? true by default. */

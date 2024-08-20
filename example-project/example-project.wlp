@@ -452,7 +452,7 @@
                     "basic-xml-ui-root": {
                         "material": "59",
                         "xmlUrl": "ui.xml",
-                        "unitsPerPixel": 0.0049999,
+                        "unitsPerPixel": 0.01,
                         "cursorStyleManagerObject": "71",
                         "resolution": 3.0
                     }
@@ -850,7 +850,7 @@
             "version": [
                 1,
                 1,
-                2
+                6
             ]
         },
         "vr": {

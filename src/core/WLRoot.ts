@@ -41,12 +41,6 @@ export interface WLRootProperties extends RootProperties {
      */
     unitsPerPixel?: number,
     /**
-     * The collision group that this root's collider will belong to. If null,
-     * collider and cursor-target will not be added.
-     * @deprecated Use {@link WLRootProperties#collisionGroupsMask} instead
-     */
-    collisionGroup?: number,
-    /**
      * The collision groups that this root's collider will belong to. If 0,
      * collider and cursor-target will not be added.
      */
@@ -122,14 +116,9 @@ export interface WLRootProperties extends RootProperties {
  */
 export class WLRoot extends Root {
     /** Default units-per-pixel */
-    static readonly defaultUnitsPerPixel = 0.01;
-    /**
-     * Default collision group
-     * @deprecated Use {@link WLRoot.defaultCollisionGroupsMask} instead
-     */
-    static readonly defaultCollisionGroup = 1;
+    static readonly defaultUnitsPerPixel = 0.02;
     /** Default collision groups, as a bitmask */
-    static readonly defaultCollisionGroupsMask = 0;
+    static readonly defaultCollisionGroupsMask = 2;
     /** Are materials cloned by default? */
     static readonly defaultCloneMaterial = true;
     /** Are pointer drivers auto-registered by default? */
@@ -306,13 +295,12 @@ export class WLRoot extends Root {
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
 
-        if (properties?.enablePasteEvents) {
+        if (properties.enablePasteEvents) {
             addPasteEventListener(this.boundTo, this);
             this.hasPasteEvents = true;
         }
 
-        // TODO remove collisionGroup in next major
-        const collisionGroupsMask: number = (properties?.collisionGroupsMask ?? WLRoot.defaultCollisionGroupsMask) | (1 << (properties?.collisionGroup ?? WLRoot.defaultCollisionGroup));
+        const collisionGroupsMask = properties.collisionGroupsMask ?? WLRoot.defaultCollisionGroupsMask;
         const registerPointerDriver = properties.registerPointerDriver ?? WLRoot.defaultRegisterPointerDriver;
         const registerKeyboardDriver = properties.registerKeyboardDriver ?? WLRoot.defaultRegisterKeyboardDriver;
         this.unitsPerPixel = properties.unitsPerPixel ?? WLRoot.defaultUnitsPerPixel;
@@ -555,8 +543,8 @@ export class WLRoot extends Root {
             const [scaleX, scaleY] = this.effectiveScale;
             meshObject.resetScaling();
             meshObject.setScalingLocal([
-                this.unitsPerPixel * width,
-                this.unitsPerPixel * height,
+                this.unitsPerPixel * 0.5 * width,
+                this.unitsPerPixel * 0.5 * height,
                 0.01,
             ]);
             this.lastUnitsPerPixel = this.unitsPerPixel;
