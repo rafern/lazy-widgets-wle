@@ -42,7 +42,7 @@ jobs:
     environment: Main
     runs-on: ubuntu-latest
     container:
-      image: wonderlandengine/editor:latest
+      image: wonderlandengine/editor:1.1.6
     steps:
       # XXX libatomic is missing. looks like WLE github CI is outdated
       - run: apt-get install -y libatomic1
