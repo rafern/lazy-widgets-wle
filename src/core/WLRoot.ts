@@ -501,6 +501,12 @@ export class WLRoot extends Root {
     }
 
     private updateCollisionExtents(effOverextend: number, width: number, height: number) {
+        if (width <= 0 || height <= 0) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.collision!.extents = [0,0,0];
+            return;
+        }
+
         this.curCollisionOverextension = effOverextend;
         const oxPixels2 = effOverextend * 2;
         const oxWidth = oxPixels2 + width;
@@ -563,10 +569,12 @@ export class WLRoot extends Root {
                 vBorder = 1 / this.canvas.height;
             }
 
-            const uSpan = scaleX * width / canvasWidth;
-            const vSpan = scaleY * height / canvasHeight;
+            if (width > 0 && height > 0 && canvasWidth > 0 && canvasHeight > 0) {
+                const uSpan = scaleX * width / canvasWidth;
+                const vSpan = scaleY * height / canvasHeight;
 
-            this._setupMesh(uBorder, uBorder + uSpan, 1 - vBorder, 1 - vBorder - vSpan);
+                this._setupMesh(uBorder, uBorder + uSpan, 1 - vBorder, 1 - vBorder - vSpan);
+            }
         } else if(this.collision !== null) {
             meshObject.getScalingWorld(TMP_VEC);
             const diffSqr = Math.abs(TMP_VEC[0] - this.lastWorldScale[0]) + Math.abs(TMP_VEC[1] - this.lastWorldScale[1]);
@@ -671,23 +679,26 @@ export class WLRoot extends Root {
     }
 
     private _setupMesh(uLeft: number, uRight: number, vTop: number, vBottom: number) {
-        const newMesh = new Mesh(this.wlObject.engine, {
-            indexData: new Uint8Array([
-                0, 3, 1, // top-right triangle
-                0, 2, 3, // bottom-left triangle
-            ]),
-            indexType: MeshIndexType.UnsignedByte,
-            vertexCount: 4,
-        });
+        if(!this.mesh) {
+            this.mesh = new Mesh(this.wlObject.engine, {
+                indexData: new Uint8Array([
+                    0, 3, 1, // top-right triangle
+                    0, 2, 3, // bottom-left triangle
+                ]),
+                indexType: MeshIndexType.UnsignedByte,
+                vertexCount: 4,
+            });
+            (this.meshComponent as MeshComponent).mesh = this.mesh;
+        }
 
-        const positions = newMesh.attribute(MeshAttribute.Position);
+        const positions = this.mesh.attribute(MeshAttribute.Position);
         if (!positions) {
             throw new Error('Could not get position mesh attribute accessor');
         }
 
-        const normals = newMesh.attribute(MeshAttribute.Normal);
+        const normals = this.mesh.attribute(MeshAttribute.Normal);
 
-        const texCoords = newMesh.attribute(MeshAttribute.TextureCoordinate);
+        const texCoords = this.mesh.attribute(MeshAttribute.TextureCoordinate);
         if (!texCoords) {
             throw new Error('Could not get texture coordinate mesh attribute accessor');
         }
@@ -712,13 +723,7 @@ export class WLRoot extends Root {
             normals.set(3, [0, 0, 1]); // br
         }
 
-        (this.meshComponent as MeshComponent).mesh = newMesh;
-
-        if(this.mesh) {
-            this.mesh.destroy();
-        }
-
-        this.mesh = newMesh;
+        this.mesh.update();
     }
 
     private _testRayDirection(cursor: Cursor): boolean {
