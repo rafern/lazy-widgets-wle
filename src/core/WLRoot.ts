@@ -679,7 +679,15 @@ export class WLRoot extends Root {
     }
 
     private _setupMesh(uLeft: number, uRight: number, vTop: number, vBottom: number) {
-        if(!this.mesh) {
+        // TODO remove this workaround when we move on to 1.2 if mesh updating
+        //      is fixed there
+        if (this.mesh) {
+            this.mesh.destroy();
+            this.mesh = null;
+        }
+
+        const hadMesh = !!this.mesh;
+        if (!hadMesh) {
             this.mesh = new Mesh(this.wlObject.engine, {
                 indexData: new Uint8Array([
                     0, 3, 1, // top-right triangle
@@ -689,41 +697,31 @@ export class WLRoot extends Root {
                 vertexCount: 4,
             });
             (this.meshComponent as MeshComponent).mesh = this.mesh;
+
+            const positions = this.mesh.attribute(MeshAttribute.Position);
+            if (!positions) {
+                throw new Error('Could not get position mesh attribute accessor');
+            }
+
+            // TL, TR, BL, BR
+            positions.set(0, [-1, 1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0]);
+
+            const normals = this.mesh.attribute(MeshAttribute.Normal);
+            if (normals) {
+                normals.set(0, [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]);
+            }
         }
 
-        const positions = this.mesh.attribute(MeshAttribute.Position);
-        if (!positions) {
-            throw new Error('Could not get position mesh attribute accessor');
-        }
-
-        const normals = this.mesh.attribute(MeshAttribute.Normal);
-
-        const texCoords = this.mesh.attribute(MeshAttribute.TextureCoordinate);
+        const texCoords = (this.mesh as Mesh).attribute(MeshAttribute.TextureCoordinate);
         if (!texCoords) {
             throw new Error('Could not get texture coordinate mesh attribute accessor');
         }
 
-        // top-left
-        positions.set(0, [-1, 1, 0]);
-        texCoords.set(0, [uLeft, vTop]);
-        // top-right
-        positions.set(1, [1, 1, 0]);
-        texCoords.set(1, [uRight, vTop]);
-        // bottom-left
-        positions.set(2, [-1, -1, 0]);
-        texCoords.set(2, [uLeft, vBottom]);
-        // bottom-right
-        positions.set(3, [1, -1, 0]);
-        texCoords.set(3, [uRight, vBottom]);
-
-        if (normals) {
-            normals.set(0, [0, 0, 1]); // tl
-            normals.set(1, [0, 0, 1]); // tr
-            normals.set(2, [0, 0, 1]); // bl
-            normals.set(3, [0, 0, 1]); // br
+        // TL, TR, BL, BR
+        texCoords.set(0, [uLeft, vTop, uRight, vTop, uLeft, vBottom, uRight, vBottom]);
+        if (hadMesh) {
+            (this.mesh as Mesh).update();
         }
-
-        this.mesh.update();
     }
 
     private _testRayDirection(cursor: Cursor): boolean {
