@@ -134,6 +134,10 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      * toggling when the root isn't loaded yet
      */
     protected wantEnabled = false;
+    /**
+     * Was the root destroyed? Used to prevent data races in the loading logic.
+     */
+    protected rootDestroyed = false;
 
     static override onRegister(engine: WonderlandEngine) {
         engine.registerComponent(CursorTarget);
@@ -157,10 +161,17 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
                 throw new Error(makeLWWLEErrMsg(this, 'returned no WLRoot on createWLRoot', "Make sure to return the created WLRoot in the createWLRoot method, or don't override the method if you only need to use the default WLRoot class. Only override the createWLRoot method if you really need to, and if you know what you're doing"));
             }
 
+            this.assertRootNotDestroyed();
             this.root = root;
             root.enabled = this.wantEnabled;
             this.onRootReady(root);
         });
+    }
+
+    assertRootNotDestroyed() {
+        if (this.rootDestroyed) {
+            throw new Error('WLRoot destroyed');
+        }
     }
 
     private guardRoot(root?: WLRootType): root is WLRootType {
@@ -209,6 +220,10 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
         }
     }
 
+    override onDestroy() {
+        this.rootDestroyed = true;
+    }
+
     /**
      * Similar to createWidget, except this method should be called instead of
      * createWidget. If you are looking for a method to override and create a
@@ -240,7 +255,9 @@ export abstract class NoDriverPropsBaseLazyWidgetsComponent<WLRootType extends W
      * to get a widget.
      */
     protected async createWLRoot(material: Material, properties: WLRootPropertiesType): Promise<WLRootType> {
-        return new WLRoot(this.object, material, await this.createWidgetGuarded(properties), properties) as WLRootType;
+        const widget = await this.createWidgetGuarded(properties);
+        this.assertRootNotDestroyed();
+        return new WLRoot(this.object, material, widget, properties) as WLRootType;
     }
 
     /**
