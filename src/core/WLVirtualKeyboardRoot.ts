@@ -1,5 +1,5 @@
 import { type Material, type Object3D } from '@wonderlandengine/api';
-import { Background, defaultVirtualKeyboardTemplate, Margin, VirtualKeyboard, type KeyboardDriver, type VirtualKeyboardRootProperties } from 'lazy-widgets';
+import { Background, defaultVirtualKeyboardTemplate, VirtualKeyboard, type KeyboardDriver, type VirtualKeyboardRootProperties } from 'lazy-widgets';
 import { WLRoot, type WLRootProperties } from './WLRoot.js';
 
 /**
@@ -33,12 +33,13 @@ export class WLVirtualKeyboardRoot extends WLRoot {
             wlObject,
             material,
             new Background(
-                new Margin(
-                    new VirtualKeyboard(
-                        keyboardDriver,
-                        properties?.keyboardTemplate ?? defaultVirtualKeyboardTemplate
-                    ),
+                new VirtualKeyboard(
+                    keyboardDriver,
+                    properties?.keyboardTemplate ?? defaultVirtualKeyboardTemplate
                 ),
+                {
+                    containerPadding: { left: 8, right: 8, top: 8, bottom: 8 },
+                },
             ),
             properties
         );

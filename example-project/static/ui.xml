@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui-tree name="default" xmlns="lazy-widgets" xmlns:option="lazy-widgets:options" xmlns:on="lazy-widgets:on">
     <background>
-        <margin>
-            <label option:body-text-align="@0.5">This UI was loaded
+        <label option:body-text-align="@0.5">This UI was loaded
 from an XML!</label>
-        </margin>
     </background>
 </ui-tree>
