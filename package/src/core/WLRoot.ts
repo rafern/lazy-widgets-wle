@@ -627,10 +627,16 @@ export class WLRoot extends Root {
 
         // Update texture if needed (if root was dirty)
         if(this.oldTexSize[0] !== canvasWidth || this.oldTexSize[1] !== canvasHeight) {
+            // Destroy old texture so that there isn't an accumulation of
+            // texture atlas usage over time
+            if(this.texture) {
+                this.texture.destroy();
+                this.texture = null;
+            }
+
             this.oldTexSize[0] = canvasWidth;
             this.oldTexSize[1] = canvasHeight;
             const mat = this.materialClone;
-            const oldTexture = this.texture;
             this.texture = this.wlObject.engine.textures.create(this.canvas);
 
             const textureUniformName = this.textureUniformName ?? DEFAULT_TEXTURE_UNIFORMS.get(mat.pipeline);
@@ -638,12 +644,6 @@ export class WLRoot extends Root {
                 console.error(`Pipeline "${mat.pipeline}" not supported by WLRoot without specifying a texture uniform name (textureUniformName property)`);
             } else {
                 (mat as unknown as Record<string, Texture>)[textureUniformName] = this.texture;
-            }
-
-            // Destroy old texture so that there isn't an accumulation of
-            // texture atlas usage over time
-            if(oldTexture) {
-                oldTexture.destroy();
             }
         } else if(this.texture) {
             //console.log('Root was dirty, updating texture');
