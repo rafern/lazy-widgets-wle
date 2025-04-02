@@ -1,5 +1,5 @@
 import { Collider, Mesh, MeshAttribute, MeshIndexType, Texture, type CollisionComponent, type Material, type MeshComponent, type Object3D, type WonderlandEngine } from '@wonderlandengine/api';
-import { CursorTarget, EventTypes, type Cursor } from '@wonderlandengine/components';
+import { CursorTarget, EventTypes, FingerCursor, type Cursor } from '@wonderlandengine/components';
 import { type ICursorStyleManager } from 'cursor-style-manager-wle';
 import { quat, vec3 } from 'gl-matrix';
 import { DOMKeyboardDriver, DOMKeyboardDriverGroup, FocusType, PointerDriver, Root, type RootProperties, type Widget } from 'lazy-widgets';
@@ -248,10 +248,10 @@ export class WLRoot extends Root {
     protected paintedOnce = false;
     private keydownEventListener: ((event: KeyboardEvent) => void) | null = null;
     private keyupEventListener: ((event: KeyboardEvent) => void) | null = null;
-    private unHoverFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private moveFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private downFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
-    private upFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
+    private unHoverFunction: ((object: Object3D, cursor: Cursor | FingerCursor, ev?: EventTypes) => void) | null = null;
+    private moveFunction: ((object: Object3D, cursor: Cursor | FingerCursor, ev?: EventTypes) => void) | null = null;
+    private downFunction: ((object: Object3D, cursor: Cursor | FingerCursor, ev?: EventTypes) => void) | null = null;
+    private upFunction: ((object: Object3D, cursor: Cursor | FingerCursor, ev?: EventTypes) => void) | null = null;
     // private wheelFunction: ((object: Object3D, cursor: Cursor, ev?: EventTypes) => void) | null = null;
     private boundTo: HTMLElement;
     private lastWorldScale = new Float32Array(3);
@@ -439,9 +439,14 @@ export class WLRoot extends Root {
                     passive: true, capture: true,
                 });
 
-                this.unHoverFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
+                this.unHoverFunction = (_, cursor: Cursor | FingerCursor, _ev?: EventTypes) => {
+                    // TODO support FingerCursor
+                    if (cursor.type === FingerCursor.TypeName) {
+                        return;
+                    }
+
                     WLRoot.pointerDriver.leavePointer(
-                        this, WLRoot.getPointerID(cursor)
+                        this, WLRoot.getPointerID(cursor as Cursor)
                     );
 
                     if (this.cursorStyleManager) {
@@ -449,26 +454,41 @@ export class WLRoot extends Root {
                     }
                 };
 
-                this.moveFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    if (this._testRayDirection(cursor)) {
+                this.moveFunction = (_, cursor: Cursor | FingerCursor, _ev?: EventTypes) => {
+                    // TODO support FingerCursor
+                    if (cursor.type === FingerCursor.TypeName) {
+                        return;
+                    }
+
+                    if (this._testRayDirection(cursor as Cursor)) {
                         WLRoot.pointerDriver.movePointer(
-                            this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), null, shift, ctrl, alt
+                            this, WLRoot.getPointerID(cursor as Cursor), ...getCursorPos(cursor as Cursor), null, shift, ctrl, alt
                         );
                     }
                 };
 
-                this.downFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    if (this._testRayDirection(cursor)) {
+                this.downFunction = (_, cursor: Cursor | FingerCursor, _ev?: EventTypes) => {
+                    // TODO support FingerCursor
+                    if (cursor.type === FingerCursor.TypeName) {
+                        return;
+                    }
+
+                    if (this._testRayDirection(cursor as Cursor)) {
                         WLRoot.pointerDriver.movePointer(
-                            this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 1, shift, ctrl, alt
+                            this, WLRoot.getPointerID(cursor as Cursor), ...getCursorPos(cursor as Cursor), 1, shift, ctrl, alt
                         );
                     }
                 };
 
-                this.upFunction = (_, cursor: Cursor, _ev?: EventTypes) => {
-                    if (this._testRayDirection(cursor)) {
+                this.upFunction = (_, cursor: Cursor | FingerCursor, _ev?: EventTypes) => {
+                    // TODO support FingerCursor
+                    if (cursor.type === FingerCursor.TypeName) {
+                        return;
+                    }
+
+                    if (this._testRayDirection(cursor as Cursor)) {
                         WLRoot.pointerDriver.movePointer(
-                            this, WLRoot.getPointerID(cursor), ...getCursorPos(cursor), 0, shift, ctrl, alt
+                            this, WLRoot.getPointerID(cursor as Cursor), ...getCursorPos(cursor as Cursor), 0, shift, ctrl, alt
                         );
                     }
                 };

@@ -1,24 +1,28 @@
 {
-  "name": "lazy-widgets-wle-example-project",
-  "version": "1.0.0",
-  "description": "lazy-widgets-wle example project",
-  "main": "js/index.js",
-  "type": "module",
-  "module": "js/index.js",
-  "packageManager": "npm@8.19.2",
-  "scripts": {
-    "preinstall": "cd .. && npm install && node ./dev/needs-build.cjs && npm run build || echo Build skipped or failed"
-  },
-  "keywords": [
-    "wonderland-engine"
-  ],
-  "author": "rafern",
-  "license": "CC0-1.0",
-  "dependencies": {
-    "@wonderlandengine/api": "^1.1.3",
-    "@wonderlandengine/components": "^1.0.6",
-    "cursor-style-manager-wle": "^1.0.1",
-    "gl-matrix": "^3.4.3",
-    "lazy-widgets-wle": "file:.."
-  }
+    "name": "lazy-widgets-wle-example-project",
+    "version": "1.0.0",
+    "description": "lazy-widgets-wle example project",
+    "main": "js/index.js",
+    "type": "module",
+    "module": "js/index.js",
+    "packageManager": "npm@8.19.2",
+    "scripts": {
+        "preinstall": "cd ../package && npm install && node ./dev/needs-build.cjs && npm run build || echo Build skipped or failed"
+    },
+    "keywords": [
+        "wonderland-engine"
+    ],
+    "author": "rafern",
+    "license": "CC0-1.0",
+    "dependencies": {
+        "@wonderlandengine/api": "file:../../../../../../app/bin/../share/wonderlandengine/js/api/wonderlandengine-api.tgz",
+        "@wonderlandengine/components": "^1.0.6",
+        "cursor-style-manager-wle": "^1.0.1",
+        "gl-matrix": "^3.4.3",
+        "lazy-widgets-wle": "file:../package",
+        "lazy-widgets": "file:../package/node_modules/lazy-widgets"
+    },
+    "overrides": {
+        "@wonderlandengine/api": "$@wonderlandengine/api"
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, Object as $Object } from '@wonderlandengine/api';
+import { Component, Object as $Object, ComponentConstructor } from '@wonderlandengine/api';
 import { property } from '@wonderlandengine/api/decorators.js';
 import { type Cursor } from '@wonderlandengine/components';
 import { PointerHint } from 'lazy-widgets';
@@ -54,7 +54,8 @@ export class LazyWidgetsInputGuardComponent extends Component {
     override start() {
         if(this.keyboardComponentName !== '') {
             if(this.keyboardObject !== null) {
-                const keyboardComponents = this.keyboardObject.getComponents(this.keyboardComponentName);
+                // FIXME stop doing this hacky cast. use strings once that's fixed
+                const keyboardComponents = this.keyboardObject.getComponents(this.keyboardComponentName as unknown as ComponentConstructor<Component>);
                 if(keyboardComponents.length === 0) {
                     this.warnComponentMissing('keyboardObject', this.keyboardComponentName);
                 } else {
@@ -71,7 +72,8 @@ export class LazyWidgetsInputGuardComponent extends Component {
 
         if(this.pointerComponentName !== '') {
             if(this.pointerObject !== null) {
-                const pointerComponents = this.pointerObject.getComponents(this.pointerComponentName);
+                // FIXME stop doing this hacky cast. use strings once that's fixed
+                const pointerComponents = this.pointerObject.getComponents(this.pointerComponentName as unknown as ComponentConstructor<Component>);
                 if(pointerComponents.length === 0) {
                     this.warnComponentMissing('pointerObject', this.pointerComponentName);
                     return;
@@ -80,7 +82,8 @@ export class LazyWidgetsInputGuardComponent extends Component {
                 }
 
                 if(this.cursorObject !== null) {
-                    const cursors = this.cursorObject.getComponents(this.cursorComponentName) as Array<Cursor>;
+                    // FIXME stop doing this hacky cast. use strings once that's fixed
+                    const cursors = this.cursorObject.getComponents(this.cursorComponentName as unknown as ComponentConstructor<Cursor>);
                     if(cursors.length === 0) {
                         this.warnComponentMissing('cursorObject', this.cursorComponentName);
                     } else {
