@@ -631,7 +631,7 @@ export class WLRoot extends Root {
             this.oldTexSize[1] = canvasHeight;
             const mat = this.materialClone;
             const oldTexture = this.texture;
-            this.texture = new Texture(this.wlObject.engine, this.canvas);
+            this.texture = this.wlObject.engine.textures.create(this.canvas);
 
             const textureUniformName = this.textureUniformName ?? DEFAULT_TEXTURE_UNIFORMS.get(mat.pipeline);
             if (textureUniformName === undefined) {
