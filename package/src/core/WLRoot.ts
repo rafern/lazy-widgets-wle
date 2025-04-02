@@ -261,6 +261,7 @@ export class WLRoot extends Root {
     overextendCollisionOnCursorCapture: boolean;
     private curCollisionOverextension = 0;
     private hasPasteEvents = false;
+    private pendingAsyncUploads = 0;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -613,6 +614,11 @@ export class WLRoot extends Root {
         // Update (post-layout)
         this.postLayoutUpdate();
 
+        if (this.pendingAsyncUploads > 0) {
+            console.warn('Waiting for pending uploads...')
+            return;
+        }
+
         // Paint
         const dirtyRects = this.paint();
 
@@ -665,14 +671,49 @@ export class WLRoot extends Root {
                 const width = right - left;
                 const height = bottom - top;
                 // console.warn(`Too many dirty rectangles, merged into a single dirty rectangle - ${width}x${height}@${left},${top}`);
-                this.texture.updateSubImage(left, top, width, height);
+                this.updateSubImage(this.texture, left, top, width, height);
             } else {
                 for (const dirtyRect of dirtyRects) {
-                    this.texture.updateSubImage(...dirtyRect);
+                    this.updateSubImage(this.texture, ...dirtyRect);
                 }
             }
         } else {
             console.warn('There is no texture to update! Is the canvas dimensionless?');
+        }
+    }
+
+    // private testCanvasCtx: CanvasRenderingContext2D | null = null;
+    private async updateSubImage(texture: Texture, left: number, top: number, width: number, height: number) {
+        // TODO add fallback if createImageBitmap is not available
+        this.pendingAsyncUploads++;
+        try {
+            // console.debug('!!!!', left, top, width, height);
+            const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height);
+            if (texture !== this.texture) {
+                // texture changed, no longer applies
+                return;
+            }
+
+            // if (!this.testCanvasCtx) {
+            //     const canvas = document.createElement('canvas');
+            //     canvas.width = 4096;
+            //     canvas.height = 4096;
+            //     this.testCanvasCtx = canvas.getContext('2d');
+            //     document.body.appendChild(canvas);
+            // }
+
+            // TODO remove cast once types are fixed
+            // console.debug('!!!! done, uploading', left, top, width, height, 'actual:', imageBitmap.width, imageBitmap.height);
+            // if (this.testCanvasCtx) {
+            //     this.testCanvasCtx.clearRect(left, top, width, height);
+            //     this.testCanvasCtx.drawImage(imageBitmap, left, top);
+            // }
+            (texture.updateSubImage as (x: number, y: number, w: number, h: number, content: CanvasImageSource) => void)(left, top, width, height, imageBitmap);
+            imageBitmap.close();
+        } catch(err) {
+            console.error('Failed to upload damaged region:', err);
+        } finally {
+            this.pendingAsyncUploads--;
         }
     }
 
