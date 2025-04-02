@@ -688,7 +688,7 @@ export class WLRoot extends Root {
         this.pendingAsyncUploads++;
         try {
             // console.debug('!!!!', left, top, width, height);
-            const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height);
+            const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height, { imageOrientation: 'flipY' });
             if (texture !== this.texture) {
                 // texture changed, no longer applies
                 return;
