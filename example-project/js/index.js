@@ -45,6 +45,7 @@ const RuntimeOptions = {
 };
 /* wle:auto-constants:end */
 
+RuntimeOptions.simd = false;
 const engine = await loadRuntime(Constants.RuntimeBaseName, RuntimeOptions);
 
 engine.onSceneLoaded.once(() => {
