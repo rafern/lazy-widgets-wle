@@ -708,7 +708,7 @@ export class WLRoot extends Root {
             //     this.testCanvasCtx.clearRect(left, top, width, height);
             //     this.testCanvasCtx.drawImage(imageBitmap, left, top);
             // }
-            (texture.updateSubImage as (x: number, y: number, w: number, h: number, content: CanvasImageSource) => void)(left, top, width, height, imageBitmap);
+            (texture.updateSubImage as any)(0, 0, width, height, left, top, imageBitmap);
             imageBitmap.close();
         } catch(err) {
             console.error('Failed to upload damaged region:', err);
