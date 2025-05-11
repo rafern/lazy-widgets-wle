@@ -687,28 +687,13 @@ export class WLRoot extends Root {
         // TODO add fallback if createImageBitmap is not available
         this.pendingAsyncUploads++;
         try {
-            // console.debug('!!!!', left, top, width, height);
             const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height, { imageOrientation: 'flipY' });
             if (texture !== this.texture) {
                 // texture changed, no longer applies
                 return;
             }
 
-            // if (!this.testCanvasCtx) {
-            //     const canvas = document.createElement('canvas');
-            //     canvas.width = 4096;
-            //     canvas.height = 4096;
-            //     this.testCanvasCtx = canvas.getContext('2d');
-            //     document.body.appendChild(canvas);
-            // }
-
-            // TODO remove cast once types are fixed
-            // console.debug('!!!! done, uploading', left, top, width, height, 'actual:', imageBitmap.width, imageBitmap.height);
-            // if (this.testCanvasCtx) {
-            //     this.testCanvasCtx.clearRect(left, top, width, height);
-            //     this.testCanvasCtx.drawImage(imageBitmap, left, top);
-            // }
-            (texture.updateSubImage as any)(0, 0, width, height, left, top, imageBitmap);
+            texture.updateSubImage(0, 0, width, height, left, top, imageBitmap);
             imageBitmap.close();
         } catch(err) {
             console.error('Failed to upload damaged region:', err);

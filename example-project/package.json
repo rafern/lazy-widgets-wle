@@ -15,7 +15,7 @@
     "author": "rafern",
     "license": "CC0-1.0",
     "dependencies": {
-        "@wonderlandengine/api": "file:../../../../../../app/bin/../share/wonderlandengine/js/api/wonderlandengine-api.tgz",
+        "@wonderlandengine/api": ">=1.4.0 <1.5.0",
         "@wonderlandengine/components": "^1.0.6",
         "cursor-style-manager-wle": "^1.0.1",
         "gl-matrix": "^3.4.3",
