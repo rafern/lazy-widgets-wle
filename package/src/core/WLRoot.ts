@@ -684,21 +684,24 @@ export class WLRoot extends Root {
 
     // private testCanvasCtx: CanvasRenderingContext2D | null = null;
     private async updateSubImage(texture: Texture, left: number, top: number, width: number, height: number) {
-        // TODO add fallback if createImageBitmap is not available
-        this.pendingAsyncUploads++;
-        try {
-            const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height, { imageOrientation: 'flipY' });
-            if (texture !== this.texture) {
-                // texture changed, no longer applies
-                return;
-            }
+        if (window['createImageBitmap']) {
+            this.pendingAsyncUploads++;
+            try {
+                const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height, { imageOrientation: 'flipY' });
+                if (texture !== this.texture) {
+                    // texture changed, no longer applies
+                    return;
+                }
 
-            texture.updateSubImage(0, 0, width, height, left, top, imageBitmap);
-            imageBitmap.close();
-        } catch(err) {
-            console.error('Failed to upload damaged region:', err);
-        } finally {
-            this.pendingAsyncUploads--;
+                texture.updateSubImage(0, 0, width, height, left, top, imageBitmap);
+                imageBitmap.close();
+            } catch(err) {
+                console.error('Failed to upload damaged region:', err);
+            } finally {
+                this.pendingAsyncUploads--;
+            }
+        } else {
+            texture.updateSubImage(left, top, width, height);
         }
     }
 
@@ -725,16 +728,8 @@ export class WLRoot extends Root {
     }
 
     private _setupMesh(uLeft: number, uRight: number, vTop: number, vBottom: number) {
-        // TODO remove this workaround when we move on to 1.2 if mesh updating
-        //      is fixed there
-        if (this.mesh) {
-            this.mesh.destroy();
-            this.mesh = null;
-        }
-
-        const hadMesh = !!this.mesh;
-        if (!hadMesh) {
-            this.mesh = new Mesh(this.wlObject.engine, {
+        if (!this.mesh) {
+            this.mesh = this.wlObject.engine.meshes.create({
                 indexData: new Uint8Array([
                     0, 3, 1, // top-right triangle
                     0, 2, 3, // bottom-left triangle
@@ -765,9 +760,8 @@ export class WLRoot extends Root {
 
         // TL, TR, BL, BR
         texCoords.set(0, [uLeft, vTop, uRight, vTop, uLeft, vBottom, uRight, vBottom]);
-        if (hadMesh) {
-            (this.mesh as Mesh).update();
-        }
+
+        this.mesh.update();
     }
 
     private _testRayDirection(cursor: Cursor): boolean {
