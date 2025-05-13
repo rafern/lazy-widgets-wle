@@ -70,7 +70,8 @@ jobs:
           name: build
       - working-directory: ./example-project
         run: npm ci
-      - run: tar -xf build.tar.gz package/dist/
+      - working-directory: ./package
+        run: tar -xf ../build.tar.gz dist/
       # just naming this step because im scared that the credentials will get printed
       - name: Package with Wonderland Engine Editor
         run: /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project example-project/example-project.wlp --credentials "$WLE_CREDENTIALS"
@@ -103,7 +104,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-      - run: tar -xf build.tar.gz package/dist/
+      - working-directory: ./package
+        run: tar -xf ../build.tar.gz dist/
       - name: Download project build artifact
         uses: actions/download-artifact@v4
         with:
@@ -149,7 +151,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-      - run: tar -xf build.tar.gz package/dist/
+      - working-directory: ./package
+        run: tar -xf ../build.tar.gz dist/
       - working-directory: ./package
         run: npm ci
       - working-directory: ./package
