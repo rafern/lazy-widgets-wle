@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: package/package-lock.json
       - working-directory: ./package
         run: npm ci
       - working-directory: ./package
@@ -36,6 +37,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: package/package-lock.json
       - working-directory: ./package
         run: npm ci
       - working-directory: ./package
@@ -57,6 +59,9 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: |
+            example-project/package-lock.json
+            package/package-lock.json
       - working-directory: ./package
         run: npm ci
       - name: Download build artifact
@@ -89,23 +94,26 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: npm run docs
+          cache-dependency-path: package/package-lock.json
+      - working-directory: ./package
+        run: npm ci
+      - working-directory: ./package
+        run: npm run docs
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: build
-      - run: tar -xf build.tar.gz dist/
+      - run: tar -xf build.tar.gz package/dist/
       - name: Download project build artifact
         uses: actions/download-artifact@v4
         with:
           name: project-build
       - run: tar -xf project-build.tar.gz example-project/
-      - run: mv dist docs/dist
-      - run: mv example-project/deploy docs/example-project
+      - run: mv package/dist package/docs/dist
+      - run: mv example-project/deploy package/docs/example-project
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: 'docs/'
+          path: 'package/docs/'
 
   deploy-docs:
     if: startsWith(github.ref, 'refs/tags/releases/')
@@ -135,19 +143,23 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: package/package-lock.json
           registry-url: https://registry.npmjs.org/
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: build
-      - run: tar -xf build.tar.gz dist/
-      - run: npm ci
-      - run: npm pack
+      - run: tar -xf build.tar.gz package/dist/
+      - working-directory: ./package
+        run: npm ci
+      - working-directory: ./package
+        run: npm pack
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: lazy-widgets-wle-[0-9]*.[0-9]*.[0-9]*.tgz
+          file: package/lazy-widgets-wle-[0-9]*.[0-9]*.[0-9]*.tgz
           file_glob: true
-      - run: npm publish --no-git-checks
+      - working-directory: ./package
+        run: npm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
