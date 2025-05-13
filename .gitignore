@@ -5,7 +5,6 @@ example-project/.editor/
 example-project/.autosave/
 package/docs/
 package/dist/
-package-lock.json
 lazy-widgets-*.tgz
 imgui.ini
 *.sublime-project
