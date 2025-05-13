@@ -262,6 +262,7 @@ export class WLRoot extends Root {
     private curCollisionOverextension = 0;
     private hasPasteEvents = false;
     private pendingAsyncUploads = 0;
+    private doAsyncUploads: boolean;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -295,6 +296,7 @@ export class WLRoot extends Root {
         this.destroyTextureWhenDisabled = properties.destroyTextureWhenDisabled ?? WLRoot.defaultDestroyTextureWhenDisabled;
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
+        this.doAsyncUploads = !!window['createImageBitmap'];
 
         if (properties.enablePasteEvents) {
             addPasteEventListener(this.boundTo, this);
@@ -682,23 +684,25 @@ export class WLRoot extends Root {
         }
     }
 
-    // private testCanvasCtx: CanvasRenderingContext2D | null = null;
     private async updateSubImage(texture: Texture, left: number, top: number, width: number, height: number) {
-        if (window['createImageBitmap']) {
+        if (this.doAsyncUploads) {
             this.pendingAsyncUploads++;
+            let imageBitmap: ImageBitmap | null = null;
             try {
-                const imageBitmap = await createImageBitmap(this.canvas, left, top, width, height, { imageOrientation: 'flipY' });
+                imageBitmap = await createImageBitmap(this.canvas, left, top, width, height, { imageOrientation: 'flipY' });
                 if (texture !== this.texture) {
                     // texture changed, no longer applies
                     return;
                 }
 
                 texture.updateSubImage(0, 0, width, height, left, top, imageBitmap);
-                imageBitmap.close();
             } catch(err) {
                 console.error('Failed to upload damaged region:', err);
             } finally {
                 this.pendingAsyncUploads--;
+                if (imageBitmap) {
+                    imageBitmap.close();
+                }
             }
         } else {
             texture.updateSubImage(left, top, width, height);
