@@ -266,6 +266,7 @@ export class WLRoot extends Root {
     private hasPasteEvents = false;
     private pendingAsyncUploads = 0;
     private doAsyncUploads: boolean;
+    private isOffscreenCanvas: boolean;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -300,6 +301,7 @@ export class WLRoot extends Root {
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
         this.doAsyncUploads = !!window['createImageBitmap'];
+        this.isOffscreenCanvas = this.canvas instanceof OffscreenCanvas;
 
         if (properties.enablePasteEvents) {
             addPasteEventListener(this.boundTo, this);
@@ -648,7 +650,8 @@ export class WLRoot extends Root {
             this.oldTexSize[0] = canvasWidth;
             this.oldTexSize[1] = canvasHeight;
             const mat = this.materialClone;
-            this.texture = this.wlObject.engine.textures.create(this.canvas);
+            // FIXME WLE doesn't take in OffscreenCanvas, so cast is needed
+            this.texture = this.wlObject.engine.textures.create(this.canvas as unknown as HTMLCanvasElement);
 
             const textureUniformName = this.textureUniformName ?? DEFAULT_TEXTURE_UNIFORMS.get(mat.pipeline);
             if (textureUniformName === undefined) {
@@ -688,7 +691,7 @@ export class WLRoot extends Root {
     }
 
     private async updateSubImage(texture: Texture, left: number, top: number, width: number, height: number) {
-        if (this.doAsyncUploads && (width * height >= ASYNC_UPLOAD_AREA_THRESHOLD)) {
+        if (this.doAsyncUploads && (this.isOffscreenCanvas || (width * height >= ASYNC_UPLOAD_AREA_THRESHOLD))) {
             this.pendingAsyncUploads++;
             let imageBitmap: ImageBitmap | null = null;
             try {
