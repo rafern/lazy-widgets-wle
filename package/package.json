@@ -1,6 +1,6 @@
 {
   "name": "lazy-widgets-wle",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Typescript retained mode GUI for the HTML canvas API - Wonderland Engine integration",
   "wonderlandengine": {},
   "main": "dist/index.js",

@@ -266,7 +266,6 @@ export class WLRoot extends Root {
     private hasPasteEvents = false;
     private pendingAsyncUploads = 0;
     private doAsyncUploads: boolean;
-    private isOffscreenCanvas: boolean;
 
     /**
      * @param wlObject - The object where the mesh will be added.
@@ -301,7 +300,6 @@ export class WLRoot extends Root {
         this.cursorStyleManager = cursorStyleManager;
         this.boundTo = wlObject.engine.canvas;
         this.doAsyncUploads = !!window['createImageBitmap'];
-        this.isOffscreenCanvas = this.canvas instanceof OffscreenCanvas;
 
         if (properties.enablePasteEvents) {
             addPasteEventListener(this.boundTo, this);
@@ -691,7 +689,7 @@ export class WLRoot extends Root {
     }
 
     private async updateSubImage(texture: Texture, left: number, top: number, width: number, height: number) {
-        if (this.doAsyncUploads && (this.isOffscreenCanvas || (width * height >= ASYNC_UPLOAD_AREA_THRESHOLD))) {
+        if (this.doAsyncUploads && (width * height >= ASYNC_UPLOAD_AREA_THRESHOLD)) {
             this.pendingAsyncUploads++;
             let imageBitmap: ImageBitmap | null = null;
             try {
