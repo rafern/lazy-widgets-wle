@@ -14,10 +14,14 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - run: tar -czf build.tar.gz dist/
-      - uses: actions/upload-artifact@v4
+      - working-directory: ./package
+        run: npm ci
+      - working-directory: ./package
+        run: npm run build
+      - working-directory: ./package
+        run: tar -czf build.tar.gz dist/
+      - working-directory: ./package
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: build.tar.gz
@@ -33,9 +37,12 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test
+      - working-directory: ./package
+        run: npm ci
+      - working-directory: ./package
+        run: npm run lint
+      - working-directory: ./package
+        run: npm run test
 
   build-project:
     needs: [build, test]
@@ -51,16 +58,17 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: |
-          cd example-project
-          npm ci
-          cd ..
+      - working-directory: ./package
+        run: npm ci
       - name: Download build artifact
+        working-directory: ./package
         uses: actions/download-artifact@v4
         with:
           name: build
-      - run: tar -xf build.tar.gz dist/
+      - working-directory: ./example-project
+        run: npm ci
+      - working-directory: ./package
+        run: tar -xf build.tar.gz dist/
       # just naming this step because im scared that the credentials will get printed
       - name: Package with Wonderland Engine Editor
         run: /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project example-project/example-project.wlp --credentials "$WLE_CREDENTIALS"
