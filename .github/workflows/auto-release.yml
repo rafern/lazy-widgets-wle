@@ -20,11 +20,10 @@ jobs:
         run: npm run build
       - working-directory: ./package
         run: tar -czf build.tar.gz dist/
-      - working-directory: ./package
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: build
-          path: build.tar.gz
+          path: package/build.tar.gz
           retention-days: 1
           overwrite: true
 
@@ -61,14 +60,12 @@ jobs:
       - working-directory: ./package
         run: npm ci
       - name: Download build artifact
-        working-directory: ./package
         uses: actions/download-artifact@v4
         with:
           name: build
       - working-directory: ./example-project
         run: npm ci
-      - working-directory: ./package
-        run: tar -xf build.tar.gz dist/
+      - run: tar -xf build.tar.gz package/dist/
       # just naming this step because im scared that the credentials will get printed
       - name: Package with Wonderland Engine Editor
         run: /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project example-project/example-project.wlp --credentials "$WLE_CREDENTIALS"
