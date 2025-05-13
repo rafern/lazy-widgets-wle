@@ -637,21 +637,9 @@
         }
     },
     "shaders": {
-        "1": {
-            "link": {
-                "name": "DistanceFieldVector Textured.frag",
-                "file": "default"
-            }
-        },
         "2": {
             "link": {
                 "name": "Flat.frag",
-                "file": "default"
-            }
-        },
-        "3": {
-            "link": {
-                "name": "Flat Textured.frag",
                 "file": "default"
             }
         },
@@ -667,33 +655,15 @@
                 "file": "default"
             }
         },
-        "6": {
-            "link": {
-                "name": "Phong Textured.frag",
-                "file": "default"
-            }
-        },
         "7": {
             "link": {
                 "name": "Dynamic.vert",
                 "file": "default"
             }
         },
-        "8": {
-            "link": {
-                "name": "Particle Textured.frag",
-                "file": "default"
-            }
-        },
         "9": {
             "link": {
                 "name": "Skinning.vert",
-                "file": "default"
-            }
-        },
-        "10": {
-            "link": {
-                "name": "Static.frag",
                 "file": "default"
             }
         },
@@ -937,8 +907,8 @@
             "name": "lazy-widgets-wle-example-project",
             "version": [
                 1,
-                3,
-                4
+                4,
+                0
             ]
         },
         "xr": {
