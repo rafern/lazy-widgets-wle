@@ -6,7 +6,7 @@
                 {
                     "type": "wasd-controls",
                     "wasd-controls": {
-                        "headObject": "17"
+                        "headObject": "4"
                     }
                 },
                 {
@@ -103,7 +103,7 @@
                 {
                     "type": "csm-mouse-look",
                     "csm-mouse-look": {
-                        "cursorStyleManagerObject": "71"
+                        "cursorStyleManagerObject": "20"
                     }
                 },
                 {
@@ -272,9 +272,9 @@
                 }
             ],
             "translation": [
-                1.0000802,
-                8.8000001,
-                1.7572542
+                1.0000853,
+                1.7999999,
+                1.7572631
             ],
             "rotation": [
                 0.0,
@@ -328,7 +328,7 @@
                         "handedness": "left",
                         "styleCursor": false,
                         "cursorObject": null,
-                        "cursorRayObject": "64"
+                        "cursorRayObject": "15"
                     }
                 }
             ],
@@ -365,7 +365,7 @@
                         "handedness": "right",
                         "styleCursor": false,
                         "cursorObject": null,
-                        "cursorRayObject": "67",
+                        "cursorRayObject": "17",
                         "emulateXRScroll": true
                     }
                 }
@@ -480,6 +480,31 @@
             "components": [
                 {
                     "type": "cursor-style-manager"
+                }
+            ]
+        },
+        "21": {
+            "name": "AnimatedUI",
+            "rotation": [
+                0.0,
+                0.7071068,
+                0.0,
+                0.7071068
+            ],
+            "translation": [
+                -8.0,
+                4.0000448,
+                0.0
+            ],
+            "components": [
+                {
+                    "type": "test-animated-ui-root",
+                    "test-animated-ui-root": {
+                        "registerKeyboardDriver": false,
+                        "registerPointerDriver": false,
+                        "material": "5"
+                    },
+                    "active": false
                 }
             ]
         }

@@ -19,6 +19,7 @@ import {CursorStyleManagerComponent} from 'cursor-style-manager-wle';
 import {BasicXMLUIRootComponent} from 'lazy-widgets-wle';
 import {LazyWidgetsInputGuardComponent} from 'lazy-widgets-wle';
 import {VirtualKeyboardUIRootComponent} from 'lazy-widgets-wle';
+import {TestAnimatedUIRootComponent} from './TestAnimatedUIRootComponent.js';
 import {TestUIRootComponent} from './TestUIRootComponent.js';
 /* wle:auto-imports:end */
 import {CursorTarget} from '@wonderlandengine/components';
@@ -88,6 +89,7 @@ engine.registerComponent(CursorStyleManagerComponent);
 engine.registerComponent(BasicXMLUIRootComponent);
 engine.registerComponent(LazyWidgetsInputGuardComponent);
 engine.registerComponent(VirtualKeyboardUIRootComponent);
+engine.registerComponent(TestAnimatedUIRootComponent);
 engine.registerComponent(TestUIRootComponent);
 /* wle:auto-register:end */
 engine.registerComponent(CursorTarget);
