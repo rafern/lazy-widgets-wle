@@ -18,6 +18,9 @@ let pointerIDs: Map<Cursor, number> | null = null;
 const TMP_VEC = new Float32Array(4);
 const TMP_VEC_2 = new Float32Array(3);
 
+// 512x512, approximately 1 MiB when using 32-bit colour
+const ASYNC_UPLOAD_AREA_THRESHOLD = 262144;
+
 const DEFAULT_TEXTURE_UNIFORMS = new Map<string, string>([
     ['Flat Opaque Textured', 'flatTexture'],
     ['Phong Opaque Textured', 'diffuseTexture'],
@@ -685,7 +688,7 @@ export class WLRoot extends Root {
     }
 
     private async updateSubImage(texture: Texture, left: number, top: number, width: number, height: number) {
-        if (this.doAsyncUploads) {
+        if (this.doAsyncUploads && (width * height >= ASYNC_UPLOAD_AREA_THRESHOLD)) {
             this.pendingAsyncUploads++;
             let imageBitmap: ImageBitmap | null = null;
             try {
