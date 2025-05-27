@@ -1,6 +1,6 @@
 {
   "name": "lazy-widgets-wle",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Typescript retained mode GUI for the HTML canvas API - Wonderland Engine integration",
   "wonderlandengine": {},
   "main": "dist/index.js",
@@ -57,7 +57,7 @@
     "@wonderlandengine/components": ">= 1.0.3",
     "cursor-style-manager-wle": "1.x",
     "gl-matrix": "3.x",
-    "lazy-widgets": ">= 0.12 < 1"
+    "lazy-widgets": ">= 0.12 < 0.20"
   },
   "peerDependenciesMeta": {
     "cursor-style-manager-wle": {
